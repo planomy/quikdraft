@@ -218,16 +218,19 @@
             pointer-events: none;
         }
 
-        /* Tags */
+        /* Tags - Fixed shading */
         strong {
             color: var(--primary);
-            background-color: #e0f2fe;
-            padding: 2px 4px;
-            border-radius: 4px;
-            font-weight: 700;
+            background-color: transparent; /* Clean look with no background */
+            font-weight: 800;
             white-space: nowrap;
-            font-size: 0.85em;
             cursor: pointer;
+        }
+        strong.selected {
+            background-color: #fecaca;
+            color: #b91c1c;
+            border-radius: 4px;
+            padding: 0 4px;
         }
 
         .pending-tag {
@@ -344,6 +347,17 @@
 
         .page-footer { text-align: center; font-size: 0.8rem; color: var(--text-light); padding: 16px 0; font-weight: 600; flex-shrink: 0; }
 
+        /* Stars - Fixed to use clear outlines vs solid */
+        .star-icon {
+            color: #cbd5e1;
+            font-size: 1.2rem;
+            line-height: 1;
+            transition: color 0.2s, transform 0.2s;
+            padding-left: 8px;
+        }
+        .star-icon:hover { color: #94a3b8; transform: scale(1.15); }
+        .star-icon.active { color: #f59e0b; } /* Gold when active */
+
         #favorites-popup {
             position: absolute;
             display: none;
@@ -381,9 +395,18 @@
 
         .tooltip-header { color: var(--primary); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; display: block; }
 
-        /* Modal Overlays */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-        .modal-overlay.visible { opacity: 1; pointer-events: auto; }
+        /* Modal Overlays - Fixed Stray Render */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none; /* Changed from flex/opacity:0 to ensure it's removed from layout */
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .modal-overlay.visible { display: flex; }
         .modal-content { background: var(--surface); border-radius: 12px; width: 90%; max-width: 600px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
         .modal-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .modal-header h2 { margin: 0; font-size: 1.2rem; font-weight: 800; }
@@ -428,7 +451,7 @@
                         <div class="toggle-wrapper" style="margin-left: 14px;">
                             <span>Favourites</span>
                             <label class="switch">
-                                <input type="checkbox" id="favorites-toggle" checked>
+                                <input type="checkbox" id="favorites-toggle">
                                 <span class="slider"></span>
                             </label>
                         </div>
@@ -462,7 +485,7 @@
                     <div class="toggle-wrapper">
                         <span>Tips</span>
                         <label class="switch">
-                            <input type="checkbox" id="tooltip-toggle" checked>
+                            <input type="checkbox" id="tooltip-toggle">
                             <span class="slider"></span>
                         </label>
                     </div>
@@ -530,18 +553,20 @@
         const STORAGE_PREFIX = 'rapidMark_v3_';
         let savedCustomCodes = {}; let classSummaryCounts = {}; let favoriteCodes = ["AWKWARD PHRASING", "FIX THIS FRAGMENT", "EXPAND IDEA"]; let tooltipsEnabled = true; let favoritesEnabled = true; let savedDraft = null;
 
-        try {
-            savedCustomCodes = JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'custom') || '{}');
-            classSummaryCounts = JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'summary') || '{}');
-            favoriteCodes = JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'favs') || favoriteCodes);
-            const tpref = localStorage.getItem(STORAGE_PREFIX + 'tooltips'); if (tpref !== null) tooltipsEnabled = JSON.parse(tpref);
-            const fpref = localStorage.getItem(STORAGE_PREFIX + 'favToggle'); if (fpref !== null) favoritesEnabled = JSON.parse(fpref);
-            savedDraft = localStorage.getItem(STORAGE_PREFIX + 'draft');
-        } catch (e) {}
+        // Safe Storage Logic
+        try { savedCustomCodes = JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'custom') || '{}'); } catch (e) {}
+        try { classSummaryCounts = JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'summary') || '{}'); } catch (e) {}
+        try { const favs = localStorage.getItem(STORAGE_PREFIX + 'favs'); if (favs) favoriteCodes = JSON.parse(favs); } catch (e) {}
+        try { const tpref = localStorage.getItem(STORAGE_PREFIX + 'tooltips'); if (tpref !== null) tooltipsEnabled = JSON.parse(tpref); } catch (e) {}
+        try { const fpref = localStorage.getItem(STORAGE_PREFIX + 'favToggle'); if (fpref !== null) favoritesEnabled = JSON.parse(fpref); } catch (e) {}
+        try { savedDraft = localStorage.getItem(STORAGE_PREFIX + 'draft'); } catch (e) {}
+
+        // Initialize toggle switches
+        document.getElementById('favorites-toggle').checked = favoritesEnabled;
+        document.getElementById('tooltip-toggle').checked = tooltipsEnabled;
 
         const codeData = { ...baseCodeData, ...savedCustomCodes };
         const editor = document.getElementById('editor');
-        const editorWrapper = document.querySelector('.editor-column');
         const codesContainer1 = document.getElementById('codes-container-1');
         const codesContainer2 = document.getElementById('codes-container-2');
         const toast = document.getElementById('toast');
@@ -570,15 +595,22 @@
             return false;
         };
 
-        // --- AI ENGINE ---
-        async function fetchAI(payload) {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (!response.ok) throw new Error('API Error');
-            return await response.json();
+        // --- AI ENGINE WITH EXPONENTIAL BACKOFF ---
+        async function fetchAIWithRetry(payload, retries = 3) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return await response.json();
+                } catch (e) {
+                    if (i === retries - 1) throw e;
+                    await new Promise(r => setTimeout(r, 1000 * Math.pow(2, i))); 
+                }
+            }
         }
 
         async function runAutoMark() {
@@ -591,10 +623,20 @@
             const systemPrompt = `You are an expert Year 7 English teacher. Identify sentences with obvious mechanical issues. Available Codes: ${Object.keys(codeData).join(', ')}. Format: Return a JSON array of {"sentence": "exact text from draft", "code": "CODE_NAME"}.`;
 
             try {
-                const result = await fetchAI({
-                    contents: [{ parts: [{ text: `Student Draft: ${text}` }] }],
+                const result = await fetchAIWithRetry({
+                    contents: [{ parts: [{ text: `Student Draft:\n${text}` }] }],
                     systemInstruction: { parts: [{ text: systemPrompt }] },
-                    generationConfig: { responseMimeType: "application/json" }
+                    generationConfig: { 
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: { sentence: { type: "STRING" }, code: { type: "STRING" } },
+                                required: ["sentence", "code"]
+                            }
+                        }
+                    }
                 });
 
                 const suggestions = JSON.parse(result.candidates[0].content.parts[0].text);
@@ -604,13 +646,13 @@
                 let added = 0;
 
                 suggestions.forEach(issue => {
-                    const escaped = issue.sentence.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    // Replaces literal spaces with forgiving whitespace/tag logic 
+                    const escaped = issue.sentence.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '(?:\\s|<[^>]+>|&nbsp;)+');
                     const regex = new RegExp(`(${escaped})`, 'i');
                     const marker = `<span class="pending-tag" contenteditable="false"><span class="pending-action pending-accept">✓</span><span class="pending-label">${issue.code}</span><span class="pending-action pending-reject">✗</span></span>`;
                     
-                    // Simple replacement logic to avoid nesting
-                    if (html.includes(issue.sentence)) {
-                        html = html.replace(issue.sentence, issue.sentence + ` ${marker} `);
+                    if (regex.test(html)) {
+                        html = html.replace(regex, `$1 ${marker}`);
                         added++;
                     }
                 });
@@ -618,8 +660,9 @@
                 editor.innerHTML = html;
                 checkPendingCount();
                 saveDraft();
-                showToast(`✨ Proposing ${added} tags.`);
+                showToast(added > 0 ? `✨ Proposing ${added} tags.` : 'No exact sentence matches found.');
             } catch (err) {
+                console.error("Auto Mark Error:", err);
                 showToast('Auto Mark connection error.');
             } finally {
                 magicBtn.classList.remove('loading');
@@ -670,7 +713,7 @@
             Object.keys(codeData).sort((a,b) => (codeData[a].category||'exp').localeCompare(codeData[b].category||'exp') || a.localeCompare(b)).forEach(c => {
                 const b = document.createElement('button'); b.className = 'code-btn'; b.dataset.code = c;
                 const isFav = favoriteCodes.includes(c); const isCustom = !baseCodeData[c];
-                b.innerHTML = `<span>${c}</span> <div style="display:flex; align-items:center;">${isCustom ? `<span class="delete-icon" onclick="event.stopPropagation(); deleteCode('${c}')">×</span>` : ''}<span class="star-icon ${isFav?'active':''}" onclick="event.stopPropagation(); toggleFavorite('${c}', this)">★</span></div>`;
+                b.innerHTML = `<span>${c}</span> <div style="display:flex; align-items:center;">${isCustom ? `<span class="delete-icon" onclick="event.stopPropagation(); deleteCode('${c}')">×</span>` : ''}<span class="star-icon ${isFav?'active':''}" onclick="event.stopPropagation(); toggleFavorite('${c}', this)">${isFav ? '★' : '☆'}</span></div>`;
                 b.onclick = () => insertCode(c);
                 const start = () => { lastHoverTarget = b; hoverTimer = setTimeout(() => { if (lastHoverTarget === b) showTooltip(b); }, 100); };
                 b.addEventListener('mouseenter', start); b.addEventListener('mouseleave', () => { clearTimeout(hoverTimer); tooltip.style.display = 'none'; });
@@ -699,7 +742,12 @@
         }
 
         function deleteCode(c) { if(confirm('Delete?')){delete codeData[c]; saveCustomCodes(); renderButtons();} }
-        function toggleFavorite(c, el) { const i = favoriteCodes.indexOf(c); if(i>-1) {favoriteCodes.splice(i,1); el.classList.remove('active');} else {favoriteCodes.push(c); el.classList.add('active');} try{localStorage.setItem(STORAGE_PREFIX + 'favs', JSON.stringify(favoriteCodes));}catch(e){} }
+        function toggleFavorite(c, el) { 
+            const i = favoriteCodes.indexOf(c); 
+            if(i > -1) { favoriteCodes.splice(i,1); el.classList.remove('active'); el.textContent = '☆'; } 
+            else { favoriteCodes.push(c); el.classList.add('active'); el.textContent = '★'; } 
+            try { localStorage.setItem(STORAGE_PREFIX + 'favs', JSON.stringify(favoriteCodes)); } catch(e) {} 
+        }
         
         function insertCode(c) {
             if (activeTag) { activeTag.textContent = `[${c}]`; activeTag.classList.remove('selected'); activeTag = null; saveDraft(); return; }
@@ -728,9 +776,11 @@
             if (!e.target.closest('#favorites-popup') && !e.target.closest('.pending-tag')) favPopup.classList.remove('visible');
             if (e.target.tagName === 'STRONG') { activeTag = e.target; activeTag.classList.add('selected'); const tr = activeTag.getBoundingClientRect(); const wr = editor.getBoundingClientRect(); const rb = document.getElementById('remove-code-btn'); rb.style.top = `${tr.top - wr.top}px`; rb.style.left = `${tr.left - wr.left + (tr.width/2)}px`; rb.style.display = 'block'; return; }
             document.getElementById('remove-code-btn').style.display = 'none';
+            
+            // Favourites Popup triggers as long as we have a selection (even collapsed)
             if (favoritesEnabled && favoriteCodes.length && !e.target.closest('.pending-tag')) {
                 setTimeout(() => {
-                    const sel = window.getSelection(); if (!sel.rangeCount || sel.isCollapsed) return;
+                    const sel = window.getSelection(); if (!sel.rangeCount) return;
                     const wr = editor.getBoundingClientRect(); favPopup.style.top = `${e.clientY - wr.top + 15}px`; favPopup.style.left = `${e.clientX - wr.left}px`;
                     renderFavPopup(false); favPopup.classList.add('visible');
                 }, 10);
