@@ -320,7 +320,7 @@
             text-align: left;
             padding: 9px 12px;
             margin-bottom: 7px;
-            background: var(--surface);
+            background: #fdfdfd;
             border: 1px solid var(--border);
             border-radius: 8px;
             cursor: pointer;
@@ -467,7 +467,7 @@
             border-radius: 8px;
             box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
             padding: 6px;
-            z-index: 9999; /* Boosted z-index to stay above everything */
+            z-index: 9999; 
             flex-direction: column;
             gap: 4px;
             min-width: 180px;
@@ -524,13 +524,13 @@
         }
         .tooltip-header { color: var(--primary); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; display: block; }
 
-        /* Fixed stray Modal issue */
+        /* Modal fixes */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(4px);
-            display: none; /* Strictly none when not visible */
+            display: none; 
             align-items: center;
             justify-content: center;
             z-index: 2000;
@@ -687,10 +687,9 @@
     <div id="tooltip" class="tooltip"></div>
 
     <script>
-        const apiKey = ""; // Handled automatically by the Canvas platform
+        const apiKey = ""; // API key is fetched dynamically in standard environments.
         let evidenceMode = false;
 
-        // V4 Base Code Data Fully Restored
         const baseCodeData = {
             'FIX THIS FRAGMENT': { category: 'structure', explanation: 'This is an incomplete sentence missing a main subject or verb.', examples: { upper_primary: '"Because I was tired." ➔ "I slept because I was tired."', lower_sec: '"Running through the dark forest." ➔ "She was running through the dark forest."', upper_sec: '"Although the results were largely inconclusive." ➔ "Although the results were largely inconclusive, they suggest a trend."' } },
             'SPLIT THIS RUN-ON': { category: 'structure', explanation: 'Two or more complete sentences are joined without proper punctuation.', examples: { upper_primary: '"I like dogs they are fun." ➔ "I like dogs. They are fun."', lower_sec: '"We went to the beach it was raining we went home." ➔ "We went to the beach, but it was raining. We went home."', upper_sec: '"The experiment failed however we gathered useful data." ➔ "The experiment failed; however, we gathered useful data."' } },
@@ -712,7 +711,6 @@
             'QUOTE NOT INTRODUCED': { category: 'evidence', explanation: 'Introduce the quote before using it. Tell the reader who said it or where it comes from.', examples: { upper_primary: 'Explain who said the quote.', lower_sec: 'Introduce the quote with context.', upper_sec: 'Integrate the quote grammatically into your sentence.' } }
         };
 
-        // Using V4 exact storage keys
         const CUSTOM_STORAGE_KEY = 'annotatorCustomCodesV2';
         const CLASS_SUMMARY_KEY = 'annotatorClassSummaryV2';
         const EDITOR_DRAFT_KEY = 'annotatorEditorDraftV2';
@@ -736,9 +734,8 @@
         try { savedDraft = localStorage.getItem(EDITOR_DRAFT_KEY); } catch (e) {}
 
         const codeData = { ...baseCodeData, ...savedCustomCodes };
-        let codeKeys = Object.keys(codeData);
-
-        // Core DOM Elements
+        
+        // UI Elements Assignment
         const editor = document.getElementById('editor');
         const editorWrapper = document.querySelector('.editor-wrapper');
         const codesContainer1 = document.getElementById('codes-container-1');
@@ -750,8 +747,7 @@
         const acceptAllBtn = document.getElementById('accept-all-btn');
         const tooltip = document.getElementById('tooltip');
         const magicBtn = document.getElementById('run-auto-mark-btn');
-
-        // Missing UI Elements Restored for Event Listeners
+        
         const evidenceModeBtn = document.getElementById('evidence-mode-btn');
         const classSummaryBtn = document.getElementById('class-summary-btn');
         const closeModalBtn = document.getElementById('close-modal-btn');
@@ -963,7 +959,7 @@
             codesContainer1.innerHTML = '';
             codesContainer2.innerHTML = '';
 
-            codeKeys = Object.keys(codeData).sort((a, b) => {
+            const codeKeys = Object.keys(codeData).sort((a, b) => {
                 const catA = codeData[a].category || 'expression';
                 const catB = codeData[b].category || 'expression';
                 if (catA !== catB) return catA.localeCompare(catB);
@@ -1076,7 +1072,8 @@
             hideOverlays();
         }
 
-        // --- AI ENGINE WITH EXPONENTIAL BACKOFF & ROBUST PARSING ---
+        // --- HYBRID AUTO MARK ENGINE ---
+        // Falls back to local regex logic if the API fails or is unconfigured.
         async function fetchAIWithRetry(payload, retries = 3) {
             for (let i = 0; i < retries; i++) {
                 try {
@@ -1094,6 +1091,50 @@
             }
         }
 
+        function runLocalAutoMark(text) {
+            const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+            let newHTML = editor.innerHTML;
+            let countFound = 0;
+
+            sentences.forEach((sentence) => {
+                const s = sentence.trim();
+                let triggeredCode = null;
+
+                if (['Because', 'Although', 'Since', 'While', 'If'].some(word => s.startsWith(word)) && !s.includes(',') && s.split(' ').length < 15) {
+                    triggeredCode = 'FIX THIS FRAGMENT';
+                }
+                else if (s.split(' ').length > 18 && !s.includes(',') && !s.includes(';') && (s.match(/and|but|so|or/g) || []).length < 2) {
+                    triggeredCode = 'SPLIT THIS RUN-ON';
+                }
+                else if (s.toLowerCase().includes('many things') || s.toLowerCase().includes('changed forever')) {
+                    triggeredCode = 'VAGUE STATEMENT';
+                }
+                else if (s.includes('"') && !s.match(/said|argued|stated|suggested|says|writes/i)) {
+                    triggeredCode = 'QUOTE NOT INTRODUCED';
+                }
+
+                if (triggeredCode) {
+                    const marker = `<span class="pending-tag" contenteditable="false"><span class="pending-action pending-accept" title="Accept Suggestion">✓</span><span class="pending-label">${triggeredCode}</span><span class="pending-action pending-reject" title="Reject Suggestion">✗</span></span>`;
+                    const escaped = s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regexStr = escaped.replace(/\s+/g, '(?:\\s|&nbsp;|<[^>]+>)+');
+                    const regex = new RegExp(`(${regexStr})`, 'i');
+                    if (newHTML.match(regex)) {
+                        newHTML = newHTML.replace(regex, (match) => match + ` ${marker} `);
+                        countFound++;
+                    }
+                }
+            });
+
+            if (countFound > 0) {
+                editor.innerHTML = newHTML;
+                acceptAllBtn.style.display = 'flex';
+                saveDraft();
+                showToast(`✨ Local Scan: Proposed ${countFound} tags.`);
+            } else {
+                showToast('Local Scan: No mechanical issues found.');
+            }
+        }
+
         async function runAutoMark() {
             const text = editor.innerText.trim();
             if (!text) { showToast('Paste some text first.'); return; }
@@ -1101,10 +1142,12 @@
             magicBtn.classList.add('loading');
             magicBtn.textContent = '⏳';
 
-            // The prompt strictly demands JSON
             const systemPrompt = `You are a helpful teaching assistant. Find sentences with obvious mechanical errors (fragments, run-ons, vague statements). Only use these codes: ${Object.keys(codeData).join(', ')}. Format as a plain JSON array of objects: [{"sentence": "exact text from draft", "code": "CODE_NAME"}]. If no issues, return [].`;
 
             try {
+                // Fails instantly if there is no API key (e.g. testing locally offline)
+                if (!apiKey) throw new Error("No API Key configured.");
+
                 const result = await fetchAIWithRetry({
                     contents: [{ parts: [{ text: `Student Draft:\n${text}` }] }],
                     systemInstruction: { parts: [{ text: systemPrompt }] },
@@ -1122,12 +1165,11 @@
                 });
 
                 let responseText = result.candidates[0].content.parts[0].text;
-                // Safely clean markdown blocks just in case
                 responseText = responseText.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
                 const suggestions = JSON.parse(responseText);
 
                 if (!suggestions.length) { 
-                    showToast('No obvious issues found.'); 
+                    showToast('AI found no obvious issues.'); 
                     return; 
                 }
 
@@ -1135,7 +1177,6 @@
                 let added = 0;
 
                 suggestions.forEach(issue => {
-                    // Make search regex bulletproof across spaces and html tags
                     const escaped = issue.sentence.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                     const regexStr = escaped.replace(/\s+/g, '(?:\\s|&nbsp;|<[^>]+>)+');
                     const regex = new RegExp(`(${regexStr})`, 'i');
@@ -1151,10 +1192,11 @@
                 editor.innerHTML = html;
                 checkPendingCount();
                 saveDraft();
-                showToast(added > 0 ? `✨ Proposing ${added} tags.` : 'No exact sentence matches found.');
+                showToast(added > 0 ? `✨ AI Proposed ${added} tags.` : 'No exact sentence matches found.');
             } catch (err) {
-                console.error("Auto Mark Error:", err);
-                showToast('Auto Mark connection error.');
+                console.warn("AI API unavailable. Falling back to local engine.", err);
+                // Fallback to local regex processing
+                runLocalAutoMark(text);
             } finally {
                 magicBtn.classList.remove('loading');
                 magicBtn.textContent = '✨';
