@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Feedback Annotator</title>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --bg: #f8fafc; 
+            --surface: #ffffff;
+            --border: #e2e8f0; 
+            --text: #334155;
+            --text-light: #64748b;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --success: #0f766e;
+            --success-hover: #0d5f59;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            height: 100%; 
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            height: 100dvh; 
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .level-selector {
+            display: flex;
+            background: #e2e8f0;
+            padding: 4px;
+            border-radius: 8px;
+            gap: 2px;
+            flex-wrap: wrap;
+        }
+
+        .level-selector input[type="radio"] { display: none; }
+
+        .level-selector label {
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            transition: all 0.2s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .level-selector input[type="radio"]:checked + label {
+            background: var(--surface);
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Container: 50% / 25% / 25% Layout */
+        .container {
+            display: flex;
+            gap: 24px;
+            flex-grow: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            min-height: 0;
+        }
+
+        .editor-column {
+            flex: 2; /* 50% width */
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .sidebar-column {
+            flex: 1; /* 25% width each */
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        /* Header Alignment Logic */
+        .column-header {
+            padding: 20px 20px 12px 20px;
+            min-height: 76px; /* Forces all headers to align perfectly */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 1rem;
+            color: #0f172a;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 16px; /* Space between title and toggle */
+            letter-spacing: 0.02em;
+        }
+
+        .toggle-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 32px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px; width: 14px;
+            left: 2px; bottom: 2px;
+            background-color: white;
+            transition: .3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(14px); }
+
+        .editor-wrapper {
+            position: relative;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        #editor {
+            flex-grow: 1;
+            min-height: 320px;
+            padding: 32px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            font-size: 1.1rem;
+            line-height: 1.7;
+            outline: none;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        #editor:focus { 
+            box-shadow: inset 0 0 0 3px rgba(2, 132, 199, 0.15); 
+        }
+
+        #editor:empty:before {
+            content: attr(data-placeholder);
+            color: var(--text-light);
+            pointer-events: none;
+            white-space: pre-wrap;
+        }
+
+        strong {
+            color: var(--primary);
+            background-color: #e0f2fe;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: 700;
+            white-space: nowrap;
+            font-size: 0.85em;
+        }
+
+        strong.selected {
+            background-color: #fecaca;
+            color: #b91c1c;
+            box-shadow: 0 0 0 2px #ef4444;
+        }
+
+        .editor-footer {
+            padding: 16px 20px;
+            background: #f8fafc;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .sidebar-subtext {
+            margin: 4px 0 0 0;
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        .codes-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 12px 16px;
+            background: #ffffff; 
+        }
+
+        .code-btn {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            text-align: left;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            background: #fdfdfd;
+            border: 1.5px solid var(--border); 
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.85rem;
+            line-height: 1.2;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .code-btn:hover {
+            border-color: var(--primary);
+            background: #f0f9ff;
+            transform: translateY(-1px);
+        }
+
+        .star-icon {
+            color: #cbd5e1;
+            font-size: 1.1rem;
+            line-height: 1;
+            transition: color 0.2s;
+            padding-left: 8px;
+        }
+
+        .star-icon.active { color: #f59e0b; }
+
+        .delete-icon {
+            color: #ef4444;
+            font-size: 1.2rem;
+            padding: 0 6px;
+            opacity: 0.4;
+            transition: opacity 0.2s;
+        }
+        .delete-icon:hover { opacity: 1; }
+
+        .add-code-section {
+            padding: 16px 20px 20px 20px;
+            border-top: 1px solid var(--border);
+            background: #ffffff;
+        }
+
+        .action-btn {
+            padding: 10px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 42px;
+        }
+
+        .action-btn:hover { background: var(--primary-hover); }
+        .action-btn.secondary { background: #e2e8f0; color: #475569; }
+        .action-btn.success { background: var(--success); }
+
+        .page-footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            padding: 16px 0;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .modal-overlay.visible { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: var(--surface);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-body { padding: 24px; overflow-y: auto; flex-grow: 1; }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            background: #f8fafc;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            color: var(--text-light);
+        }
+
+        /* iPad & Smaller Screens */
+        @media (max-width: 1200px) {
+            body { padding: 12px; }
+            .container { gap: 12px; }
+            .editor-column { flex: 2; } 
+            .sidebar-column { flex: 1; }
+            #editor { font-size: 1rem; padding: 20px; }
+            .code-btn { font-size: 0.78rem; padding: 8px 10px; } 
+        }
+
+        @media (max-width: 768px) {
+            body { overflow: auto; height: auto; min-height: 100dvh; }
+            .container { flex-direction: column; }
+            .sidebar-column { flex: 0 0 auto; min-height: 400px; margin-bottom: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Feedback Annotator</h1>
+        <div class="header-actions">
+            <button class="action-btn secondary" id="evidence-mode-btn">Evidence Mode: OFF</button>
+            <div class="level-selector">
+                <input type="radio" id="lvl-primary" name="student-level" value="upper_primary">
+                <label for="lvl-primary">Upper Primary</label>
+                <input type="radio" id="lvl-lower" name="student-level" value="lower_sec" checked>
+                <label for="lvl-lower">Lower Secondary</label>
+                <input type="radio" id="lvl-upper" name="student-level" value="upper_sec">
+                <label for="lvl-upper">Upper Secondary</label>
+            </div>
+            <button class="action-btn success" id="class-summary-btn">Class Summary</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="editor-column">
+            <div class="column-header">
+                <h2>Student Writing
+                    <div class="toggle-wrapper" title="Toggle favourites menu">
+                        <span>Favourites</span>
+                        <label class="switch">
+                            <input type="checkbox" id="favorites-toggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </h2>
+                <!-- Blank subtext to maintain vertical alignment with sidebars -->
+                <p class="sidebar-subtext" style="visibility: hidden;">Placeholder</p>
+            </div>
+            <div class="editor-wrapper">
+                <div id="editor" contenteditable="true" data-placeholder="Paste student text here.&#10;Click to set cursor, then click a code."></div>
+                
+                <button class="floating-remove-btn" id="remove-code-btn" style="position: absolute; display: none; background: var(--danger); color: white; padding: 6px 12px; font-size: 0.85rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; z-index: 50; transform: translate(-50%, -100%); margin-top: -8px; white-space: nowrap;">Remove</button>
+                
+                <div id="favorites-popup" style="position: absolute; display: none; background: #fff; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); padding: 6px; z-index: 40; flex-direction: column; gap: 4px; min-width: 180px; border: 1px solid #e2e8f0;"></div>
+
+                <div class="editor-footer">
+                    <div class="footer-group">
+                        <button class="action-btn secondary" id="clear-btn">Clear Text</button>
+                        <button class="action-btn secondary" id="undo-btn" style="display:none;">Undo</button>
+                    </div>
+                    <div class="footer-group">
+                        <button class="action-btn" id="copy-btn">Copy Feedback</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-column">
+            <div class="column-header">
+                <h2>STRUCTURE
+                    <div class="toggle-wrapper" title="Toggle hover tooltips">
+                        <span>Tips</span>
+                        <label class="switch">
+                            <input type="checkbox" id="tooltip-toggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </h2>
+                <p class="sidebar-subtext">Sentence and paragraph construction</p>
+            </div>
+            <div id="codes-container-1" class="codes-container"></div>
+            <div class="add-code-section">
+                <input type="text" id="new-code-input-1" placeholder="Custom code..." style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1; margin-bottom:8px; font-size:0.8rem;">
+                <button class="action-btn" id="add-code-btn-1" style="width:100%; min-height: 34px; font-size: 0.8rem;">+ Add Code</button>
+            </div>
+        </div>
+
+        <div class="sidebar-column">
+            <div class="column-header">
+                <h2>EXPRESSION</h2>
+                <p class="sidebar-subtext">Clarity, wording and proofreading</p>
+            </div>
+            <div id="codes-container-2" class="codes-container"></div>
+            <div class="add-code-section">
+                <input type="text" id="new-code-input-2" placeholder="Custom code..." style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1; margin-bottom:8px; font-size:0.8rem;">
+                <button class="action-btn" id="add-code-btn-2" style="width:100%; min-height: 34px; font-size: 0.8rem;">+ Add Code</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-footer">
+        &copy; 2026 Nic Comino. All rights reserved.
+    </div>
+
+    <!-- Class Summary Modal -->
+    <div id="summary-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Class Summary Report</h2>
+                <button class="modal-close" id="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body-content"></div>
+            <div class="modal-footer">
+                <button class="action-btn secondary" id="copy-only-btn">Copy Only</button>
+                <button class="action-btn" id="copy-reset-btn">Copy & Reset Count</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" style="position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: #0f172a; color: white; padding: 12px 24px; border-radius: 12px; font-weight: 600; opacity: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">Copied to clipboard.</div>
+    
+    <div id="copy-staging" style="position: absolute; left: -9999px;"></div>
+    
+    <div id="tooltip" style="position: fixed; z-index: 1200; display: none; max-width: 320px; background: #0f172a; color: #fff; border-radius: 10px; padding: 12px 14px; font-size: 0.84rem; pointer-events: none; box-shadow: 0 14px 28px rgba(15, 23, 42, 0.18);"></div>
+
+    <script>
+        let evidenceMode = false;
+        const baseCodeData = {
+            'FIX THIS FRAGMENT': { category: 'structure', explanation: 'Missing main subject or verb.', examples: { upper_primary: '"Because I was tired." ➔ "I slept because I was tired."', lower_sec: '"Running through the forest." ➔ "She was running through the forest."', upper_sec: '"Although results were inconclusive." ➔ "Although results were inconclusive, they suggest a trend."' } },
+            'SPLIT THIS RUN-ON': { category: 'structure', explanation: 'Joined without proper punctuation.', examples: { upper_primary: '"I like dogs they are fun." ➔ "I like dogs. They are fun."', lower_sec: '"It was raining we went home." ➔ "It was raining, so we went home."', upper_sec: '"The experiment failed however data was useful." ➔ "The experiment failed; however, data was useful."' } },
+            'MIXING TENSE': { category: 'structure', explanation: 'Verbs switch time periods.', examples: { upper_primary: '"I ran and jump." ➔ "I ran and jumped."', lower_sec: '"He says... and then he walked." ➔ "He said... and then he walked."', upper_sec: '"The author argues... and noted." ➔ "The author argues... and notes."' } },
+            'REPEATED IDEA': { category: 'structure', explanation: 'Point already made.', examples: { upper_primary: '"Pizza is my favourite. I enjoy eating pizza." ➔ "Pizza is my favourite food."', lower_sec: '"The hero was brave. He showed bravery." ➔ "The hero demonstrated courage."', upper_sec: '"The data is redundant. It repeats information." ➔ "The data is redundant."' } },
+            'EXPAND IDEA': { category: 'structure', explanation: 'Give more detail or context.', examples: { upper_primary: '"My weekend was fun." ➔ "My weekend was fun because I saw lions."', lower_sec: '"The character felt sad." ➔ "The character felt sad, shown through his silence."', upper_sec: '"The treaty ended the war." ➔ "The treaty ended the war but created harsh conditions."' } },
+            'ADD MORE DEPTH': { category: 'structure', explanation: 'Analyse how or why it matters.', examples: { upper_primary: '"The plant grew." ➔ "The plant grew because of water and sun."', lower_sec: '"Uses a metaphor." ➔ "Uses a metaphor to highlight isolation."', upper_sec: '"Conflict mirrors wide social tension."' } },
+            'EXPLAIN WHY': { category: 'structure', explanation: 'Support with reason or logic.', examples: { upper_primary: '"Math is hard." ➔ "Math is hard because of the many rules."', lower_sec: '"The plan failed." ➔ "The plan failed because of poor communication."', upper_sec: '"This policy is ineffective because it ignores roots."' } },
+            'CHECK WORD COUNT': { category: 'structure', explanation: 'Adjust length for task.', examples: { upper_primary: 'Aim for 3 sentences.', lower_sec: 'Aim for 5–7 sentences.', upper_sec: 'Meet length without padding.' } },
+            'PROOFREADING NEEDED': { category: 'expression', explanation: 'Check spelling/punctuation.', examples: { upper_primary: '"i went" ➔ "I went"', lower_sec: '"Their going" ➔ "They’re going"', upper_sec: '"it’s effect" ➔ "its effect."' } },
+            'AWKWARD PHRASING': { category: 'expression', explanation: 'Sounds unnatural or clumsy.', examples: { upper_primary: '"Throwed by him" ➔ "He threw"', lower_sec: '"For the making of" ➔ "To make"', upper_sec: '"Due to the fact that" ➔ "Because"' } },
+            'SENTENCE UNCLEAR': { category: 'expression', explanation: 'Difficult to follow.', examples: { upper_primary: '"Thing did stuff" ➔ "Sorted the blocks"', lower_sec: '"He told him he should go" ➔ "John told Mark to leave"', upper_sec: '"Theme encapsulates dichotomy" ➔ "Theme highlights conflict"' } },
+            'VAGUE STATEMENT': { category: 'expression', explanation: 'Too general. Add specifics.', examples: { upper_primary: '"Book was good" ➔ "Exciting plot twists"', lower_sec: '"Pollution is bad" ➔ "Plastic harms sea life"', upper_sec: '"Society has changed" ➔ "Tech changed communication"' } },
+            'TOO MANY STOP WORDS': { category: 'expression', explanation: 'Cut fillers/weak wording.', examples: { upper_primary: '"Very big" ➔ "Enormous"', lower_sec: '"Just think basically true" ➔ "I believe true"', upper_sec: '"In my personal opinion" ➔ "It is evident"' } },
+            'REPETITION': { category: 'expression', explanation: 'Word repeated too closely.', examples: { upper_primary: '"Big dog, big cat" ➔ "Large dog, big cat"', lower_sec: '"Show bravery... shows bravery" ➔ "Presents courage."', upper_sec: '"Effects... effects" ➔ "Impacts"' } },
+            'ADD EVIDENCE': { category: 'evidence', explanation: 'Support with quotation/fact.', examples: { upper_primary: 'Add text evidence.', lower_sec: 'Include a quote.', upper_sec: 'Integrate relevant quotation.' } },
+            'EXPLAIN THE EVIDENCE': { category: 'evidence', explanation: 'Analyse the proof.', examples: { upper_primary: 'Explain how it proves point.', lower_sec: 'Show how quote supports argument.', upper_sec: 'Analyse evidence connection.' } },
+            'LINK BACK TO QUESTION': { category: 'evidence', explanation: 'Connect to the task/thesis.', examples: { upper_primary: 'Remind reader of question.', lower_sec: 'Connect clearly to task.', upper_sec: 'Link analysis to thesis.' } },
+            'QUOTE NOT INTRODUCED': { category: 'evidence', explanation: 'Provide context for quote.', examples: { upper_primary: 'Explain who said it.', lower_sec: 'Introduce quote with context.', upper_sec: 'Integrate grammatically.' } }
+        };
+
+        const CUSTOM_STORAGE_KEY = 'annotatorCustomCodesV2';
+        const CLASS_SUMMARY_KEY = 'annotatorClassSummaryV2';
+        const EDITOR_DRAFT_KEY = 'annotatorEditorDraftV2';
+        const FAVORITES_KEY = 'annotatorFavoritesV2';
+        const TOOLTIP_PREF_KEY = 'annotatorTooltipsEnabledV2';
+        const FAV_TOGGLE_PREF_KEY = 'annotatorFavoritesEnabledV2';
+
+        let savedCustomCodes = {}; let classSummaryCounts = {}; let favoriteCodes = ["AWKWARD PHRASING", "FIX THIS FRAGMENT", "EXPAND IDEA"]; let tooltipsEnabled = true; let favoritesEnabled = true; let savedDraft = null;
+
+        try {
+            savedCustomCodes = JSON.parse(localStorage.getItem(CUSTOM_STORAGE_KEY) || '{}');
+            classSummaryCounts = JSON.parse(localStorage.getItem(CLASS_SUMMARY_KEY) || '{}');
+            favoriteCodes = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '["AWKWARD PHRASING", "FIX THIS FRAGMENT", "EXPAND IDEA"]');
+            const tpref = localStorage.getItem(TOOLTIP_PREF_KEY); if (tpref !== null) tooltipsEnabled = JSON.parse(tpref);
+            const fpref = localStorage.getItem(FAV_TOGGLE_PREF_KEY); if (fpref !== null) favoritesEnabled = JSON.parse(fpref);
+            savedDraft = localStorage.getItem(EDITOR_DRAFT_KEY);
+        } catch (e) { console.warn("Storage restricted."); }
+
+        const codeData = { ...baseCodeData, ...savedCustomCodes };
+        const codesContainer1 = document.getElementById('codes-container-1');
+        const codesContainer2 = document.getElementById('codes-container-2');
+        const editor = document.getElementById('editor');
+        const editorWrapper = document.querySelector('.editor-wrapper');
+        const newCodeInput1 = document.getElementById('new-code-input-1');
+        const newCodeInput2 = document.getElementById('new-code-input-2');
+        const addCodeBtn1 = document.getElementById('add-code-btn-1');
+        const addCodeBtn2 = document.getElementById('add-code-btn-2');
+        const copyBtn = document.getElementById('copy-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const undoBtn = document.getElementById('undo-btn');
+        const removeCodeBtn = document.getElementById('remove-code-btn');
+        const classSummaryBtn = document.getElementById('class-summary-btn');
+        const evidenceModeBtn = document.getElementById('evidence-mode-btn');
+        const favPopup = document.getElementById('favorites-popup');
+        const toast = document.getElementById('toast');
+        const copyStaging = document.getElementById('copy-staging');
+        const tooltip = document.getElementById('tooltip');
+        const tooltipToggle = document.getElementById('tooltip-toggle');
+        const favoritesToggle = document.getElementById('favorites-toggle');
+        const summaryModal = document.getElementById('summary-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const modalBodyContent = document.getElementById('modal-body-content');
+        const copyOnlyBtn = document.getElementById('copy-only-btn');
+        const copyResetBtn = document.getElementById('copy-reset-btn');
+
+        let activeTag = null; let lastClearedContent = null; let hideToastTimer = null; let hoverTimer = null; let lastHoverTarget = null;
+
+        const showToast = (m) => { toast.textContent = m; toast.classList.add('show'); clearTimeout(hideToastTimer); hideToastTimer = setTimeout(() => toast.classList.remove('show'), 2600); };
+        const saveDraft = () => { try { localStorage.setItem(EDITOR_DRAFT_KEY, editor.innerHTML); } catch (e) {} };
+        const saveClassSummary = () => { try { localStorage.setItem(CLASS_SUMMARY_KEY, JSON.stringify(classSummaryCounts)); } catch (e) {} };
+        const saveCustomCodes = () => {
+            const customOnly = {}; Object.keys(codeData).forEach(k => { if (!baseCodeData[k]) customOnly[k] = codeData[k]; });
+            try { localStorage.setItem(CUSTOM_STORAGE_KEY, JSON.stringify(customOnly)); } catch (e) {}
+        };
+
+        const copyHTMLToClipboard = async (html, text) => {
+            if (navigator.clipboard && window.ClipboardItem) {
+                try { const item = new ClipboardItem({ 'text/html': new Blob([html], { type: 'text/html' }), 'text/plain': new Blob([text], { type: 'text/plain' }) }); await navigator.clipboard.write([item]); return true; } catch (e) {}
+            }
+            copyStaging.innerHTML = html; const range = document.createRange(); range.selectNodeContents(copyStaging); const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+            let ok = false; try { ok = document.execCommand('copy'); } catch (err) {}
+            sel.removeAllRanges(); copyStaging.innerHTML = ''; return ok;
+        };
+
+        const getSelectedLevel = () => document.querySelector('input[name="student-level"]:checked').value;
+        const countCodesInHTML = (html) => { const t = document.createElement('div'); t.innerHTML = html; const c = {}; t.querySelectorAll('strong').forEach(tg => { const cd = tg.textContent.replace(/^\[/, '').replace(/\]$/, ''); c[cd] = (c[cd] || 0) + 1; }); return c; };
+        const orderedCounts = (c) => Object.entries(c).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+        const getClassSummaryHTML = () => {
+            const ord = orderedCounts(classSummaryCounts); if (!ord.length) return '<p>No feedback recorded yet.</p>';
+            const rows = ord.map(([c, n], i) => `<tr><td style="padding:8px; border:1px solid #cbd5e1;">${i+1}</td><td style="padding:8px; border:1px solid #cbd5e1;"><strong>[${c}]</strong></td><td style="padding:8px; border:1px solid #cbd5e1;">${n}</td></tr>`).join('');
+            return `<table style="width:100%; border-collapse:collapse;"><thead><tr><th style="text-align:left; padding:8px; border:1px solid #cbd5e1; background:#f8fafc;">#</th><th style="text-align:left; padding:8px; border:1px solid #cbd5e1; background:#f8fafc;">Code</th><th style="text-align:left; padding:8px; border:1px solid #cbd5e1; background:#f8fafc;">Count</th></tr></thead><tbody>${rows}</tbody></table>`;
+        };
+
+        const hideOverlays = () => { if (activeTag) { activeTag.classList.remove('selected'); activeTag = null; } removeCodeBtn.style.display = 'none'; favPopup.style.display = 'none'; hideTooltip(); };
+        const hideTooltip = () => { clearTimeout(hoverTimer); hoverTimer = null; lastHoverTarget = null; tooltip.style.display = 'none'; };
+        const showTooltip = (btn) => {
+            if (!tooltipsEnabled) return; const code = btn.dataset.code; const data = codeData[code]; if (!data) return;
+            const level = getSelectedLevel(); const example = data.examples?.[level] || '';
+            tooltip.innerHTML = `<div style="font-weight:700; color:#bae6fd;">${code}</div><div>${data.explanation}</div>${example ? `<div style="margin-top:6px; color:#cbd5e1; font-style:italic;">Ex: ${example}</div>` : ''}`;
+            const rect = btn.getBoundingClientRect(); tooltip.style.top = `${Math.min(window.innerHeight - 20, rect.top + rect.height/2)}px`; tooltip.style.left = `${Math.max(12, Math.min(rect.right + 12, window.innerWidth - 340))}px`; tooltip.style.display = 'block';
+        };
+
+        const attachTooltipHandlers = (btn) => {
+            const start = () => { hideTooltip(); lastHoverTarget = btn; hoverTimer = setTimeout(() => { if (lastHoverTarget === btn) showTooltip(btn); }, 300); };
+            btn.addEventListener('mouseenter', start); btn.addEventListener('focus', start); btn.addEventListener('mouseleave', hideTooltip); btn.addEventListener('blur', hideTooltip);
+        };
+
+        function toggleFavorite(code, star) {
+            const idx = favoriteCodes.indexOf(code); if (idx > -1) { favoriteCodes.splice(idx, 1); star.classList.remove('active'); } else { favoriteCodes.push(code); star.classList.add('active'); }
+            try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoriteCodes)); } catch (e) {}
+            if (favPopup.style.display === 'flex') renderFavPopup();
+        }
+
+        function renderFavPopup() {
+            favPopup.innerHTML = ''; if (favoriteCodes.length === 0) { favPopup.style.display = 'none'; return; }
+            favoriteCodes.forEach(c => { const b = document.createElement('button'); b.style.background='transparent'; b.style.border='none'; b.style.textAlign='left'; b.style.padding='8px'; b.style.borderRadius='4px'; b.style.cursor='pointer'; b.style.fontWeight='600'; b.style.fontSize='0.85rem'; b.textContent = c; b.onclick = () => { insertCode(c); favPopup.style.display = 'none'; }; favPopup.appendChild(b); });
+        }
+
+        function renderButtons() {
+            codesContainer1.innerHTML = ''; codesContainer2.innerHTML = '';
+            Object.keys(codeData).sort((a,b) => (codeData[a].category||'exp').localeCompare(codeData[b].category||'exp') || a.localeCompare(b)).forEach(c => {
+                const b = document.createElement('button'); b.className = 'code-btn'; b.dataset.code = c; b.type = 'button';
+                const isFav = favoriteCodes.includes(c); const isCustom = !baseCodeData[c];
+                b.innerHTML = `<span>${c}</span> <div style="display:flex; align-items:center;">${isCustom ? `<span class="delete-icon" onclick="event.stopPropagation(); if(confirm('Delete?')){delete codeData['${c}']; saveCustomCodes(); renderButtons();}">×</span>` : ''}<span class="star-icon ${isFav?'active':''}" onclick="event.stopPropagation(); toggleFavorite('${c}', this)">★</span></div>`;
+                b.onclick = () => insertCode(c); attachTooltipHandlers(b);
+                if (codeData[c].category === 'evidence' && !evidenceMode) return;
+                (codeData[c].category === 'structure' ? codesContainer1 : codesContainer2).appendChild(b);
+            });
+        }
+
+        function insertCode(code) {
+            if (activeTag) { activeTag.textContent = `[${code}]`; const s = window.getSelection(); const r = document.createRange(); r.setStartAfter(activeTag); r.collapse(true); s.removeAllRanges(); s.addRange(r); hideOverlays(); editor.focus(); saveDraft(); return; }
+            editor.focus(); const sel = window.getSelection(); if (!sel.rangeCount) return; const rng = sel.getRangeAt(0); if (!editor.contains(rng.commonAncestorContainer)) return;
+            const sn = document.createElement('strong'); sn.textContent = `[${code}]`; const sp = document.createTextNode(' '); rng.deleteContents(); rng.insertNode(sp); rng.insertNode(sn);
+            const nr = document.createRange(); nr.setStartAfter(sp); nr.collapse(true); sel.removeAllRanges(); sel.addRange(nr); saveDraft(); hideOverlays();
+        }
+
+        editor.onpaste = (e) => { e.preventDefault(); const t = (e.clipboardData || window.clipboardData).getData('text/plain'); document.execCommand('insertText', false, t); saveDraft(); };
+        editor.onmouseup = (e) => {
+            hideOverlays(); 
+            if (e.target.tagName === 'STRONG') { 
+                activeTag = e.target; 
+                activeTag.classList.add('selected'); 
+                const tr = activeTag.getBoundingClientRect(); 
+                const wr = editorWrapper.getBoundingClientRect(); 
+                removeCodeBtn.style.top = `${tr.top - wr.top}px`; 
+                removeCodeBtn.style.left = `${tr.left - wr.left + (tr.width/2)}px`; 
+                removeCodeBtn.style.display = 'block'; 
+                return; 
+            }
+            if (favoritesEnabled && favoriteCodes.length) {
+                setTimeout(() => { 
+                    const sel = window.getSelection(); 
+                    if (!sel.rangeCount) return; 
+                    const wr = editorWrapper.getBoundingClientRect(); 
+                    let t = e.clientY - wr.top + 15; 
+                    let l = e.clientX - wr.left; 
+                    if (l+180 > wr.width) l = wr.width-190; 
+                    favPopup.style.top = `${t}px`; 
+                    favPopup.style.left = `${l}px`; 
+                    renderFavPopup(); 
+                    favPopup.style.display = 'flex'; 
+                }, 10);
+            }
+        };
+        editor.oninput = () => { hideOverlays(); if (lastClearedContent) { lastClearedContent = null; undoBtn.style.display = 'none'; } saveDraft(); };
+        removeCodeBtn.onclick = () => { if (activeTag) { activeTag.remove(); activeTag = null; removeCodeBtn.style.display = 'none'; editor.focus(); saveDraft(); } };
+
+        addCodeBtn1.onclick = () => { const v = newCodeInput1.value.trim().toUpperCase(); if (v && !codeData[v]) { codeData[v] = { category: 'structure', explanation: 'Custom.', examples: {} }; saveCustomCodes(); renderButtons(); newCodeInput1.value = ''; showToast('Added.'); } };
+        addCodeBtn2.onclick = () => { const v = newCodeInput2.value.trim().toUpperCase(); if (v && !codeData[v]) { codeData[v] = { category: 'expression', explanation: 'Custom.', examples: {} }; saveCustomCodes(); renderButtons(); newCodeInput2.value = ''; showToast('Added.'); } };
+        
+        clearBtn.onclick = () => { if (editor.innerHTML.trim()) { lastClearedContent = editor.innerHTML; editor.innerHTML = ''; undoBtn.style.display = 'inline-flex'; hideOverlays(); saveDraft(); } };
+        undoBtn.onclick = () => { if (lastClearedContent) { editor.innerHTML = lastClearedContent; lastClearedContent = null; undoBtn.style.display = 'none'; saveDraft(); } };
+
+        copyBtn.onclick = async () => {
+            const sl = getSelectedLevel(); copyStaging.innerHTML = editor.innerHTML; const cc = countCodesInHTML(editor.innerHTML); const ord = orderedCounts(cc);
+            let h = ''; if (ord.length) { h = `<hr style="margin:24px 0; border:none; border-top:1px solid #cbd5e1;"><h3>Feedback Legend</h3><ul style="line-height:1.6; padding-left:20px;">` + ord.map(([c]) => `<li style="margin-bottom:8px;"><strong>[${c}]</strong>: ${codeData[c]?.explanation||'Feedback'}${codeData[c]?.examples[sl] ? `<br><em style="color:#64748b;">Example: ${codeData[c].examples[sl]}</em>` : ''}</li>`).join('') + `</ul>`; }
+            copyStaging.innerHTML += h; ord.forEach(([c, n]) => { classSummaryCounts[c] = (classSummaryCounts[c] || 0) + n; }); saveClassSummary();
+            if (await copyHTMLToClipboard(copyStaging.innerHTML, copyStaging.innerText)) showToast('Feedback copied.'); hideOverlays();
+        };
+
+        classSummaryBtn.onclick = () => { hideOverlays(); modalBodyContent.innerHTML = getClassSummaryHTML(); summaryModal.classList.add('visible'); copyResetBtn.dataset.confirm = 'false'; copyResetBtn.textContent = 'Copy & Reset Count'; };
+        copyOnlyBtn.onclick = async () => { const h = getClassSummaryHTML(); if (await copyHTMLToClipboard(h, modalBodyContent.innerText)) { showToast('Copied.'); summaryModal.classList.remove('visible'); } };
+        copyResetBtn.onclick = async () => {
+            if (copyResetBtn.dataset.confirm === 'true') { const h = getClassSummaryHTML(); if (await copyHTMLToClipboard(h, modalBodyContent.innerText)) { classSummaryCounts = {}; saveClassSummary(); showToast('Reset.'); summaryModal.classList.remove('visible'); } }
+            else { copyResetBtn.dataset.confirm = 'true'; copyResetBtn.textContent = 'Confirm Reset?'; setTimeout(() => { copyResetBtn.dataset.confirm = 'false'; copyResetBtn.textContent = 'Copy & Reset Count'; }, 3000); }
+        };
+        closeModalBtn.onclick = () => summaryModal.classList.remove('visible');
+        evidenceModeBtn.onclick = () => { evidenceMode = !evidenceMode; evidenceModeBtn.textContent = `Evidence Mode: ${evidenceMode?'ON':'OFF'}`; renderButtons(); };
+        
+        tooltipToggle.checked = tooltipsEnabled;
+        tooltipToggle.onchange = (e) => { tooltipsEnabled = e.target.checked; try { localStorage.setItem(TOOLTIP_PREF_KEY, tooltipsEnabled); } catch(e){} };
+
+        favoritesToggle.checked = favoritesEnabled;
+        favoritesToggle.onchange = (e) => { 
+            favoritesEnabled = e.target.checked; 
+            try { localStorage.setItem(FAV_TOGGLE_PREF_KEY, favoritesEnabled); } catch(e){} 
+        };
+
+        if (savedDraft) editor.innerHTML = savedDraft; renderButtons();
+    </script>
+</body>
+</html>
