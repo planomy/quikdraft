@@ -1007,7 +1007,7 @@
             const startHover = () => {
                 hideTooltip();
                 lastHoverTarget = btn;
-                hoverTimer = setTimeout(() => { if (lastHoverTarget === btn) showTooltip(btn); }, 500);
+                hoverTimer = setTimeout(() => { if (lastHoverTarget === btn) showTooltip(btn); }, 200);
             };
 
             btn.addEventListener('mouseenter', startHover);
