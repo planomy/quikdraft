@@ -17,11 +17,10 @@
             --danger-hover: #dc2626;
             --success: #0f766e;
             --success-hover: #0d5f59;
-            /* Soft Bluey-Grey Theme */
-            --magic: #8ba3b8; 
-            --magic-hover: #718aa3; 
-            --pending-bg: #e6edf5; 
-            --pending-text: #334155;
+            --magic: #4b5563; 
+            --magic-hover: #374151; 
+            --pending-bg: #f1f5f9;
+            --pending-text: #64748b;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
@@ -234,7 +233,7 @@
             border-top-right-radius: 11px;
         }
 
-        #editor:focus { outline: none; box-shadow: none; }
+        #editor:focus { box-shadow: inset 0 0 0 2px var(--primary); }
 
         #editor:empty:before {
             content: attr(data-placeholder);
@@ -243,6 +242,7 @@
             white-space: pre-wrap;
         }
 
+        /* Standard Feedback Tags */
         strong {
             color: var(--primary);
             background-color: transparent; 
@@ -261,6 +261,16 @@
             padding: 0 4px;
         }
 
+        /* Custom Ad-Hoc Text Highlighting */
+        .custom-highlight {
+            background-color: #bae6fd;
+            color: #0369a1;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* Pending Auto-Mark Suggestion Tag */
         .pending-tag {
             display: inline-flex;
             align-items: center;
@@ -274,28 +284,15 @@
             vertical-align: baseline;
             overflow: hidden;
             user-select: none;
-            border: 1px solid #cbd5e1;
+            border: 1px solid #e2e8f0;
             transition: all 0.2s;
-            outline: none !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
         }
-        .pending-tag:focus { outline: none !important; border: 1px solid #94a3b8 !important; }
-
         .pending-action { padding: 2px 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
-        
-        .pending-accept { 
-            color: var(--success); 
-            border-right: 1px solid #cbd5e1; 
-        }
-        .pending-accept:hover { background: #d1fae5; }
-        
-        .pending-label { padding: 2px 10px; cursor: pointer; color: var(--pending-text); }
-        .pending-label:hover { background: #d3dfeb; }
-        
-        .pending-reject { 
-            color: var(--danger); 
-            border-left: 1px solid #cbd5e1; 
-        }
+        .pending-accept { color: var(--success); border-right: 1px solid #e2e8f0; }
+        .pending-accept:hover { background: #dcfce7; }
+        .pending-label { padding: 2px 8px; cursor: pointer; color: var(--text); }
+        .pending-label:hover { background: #e2e8f0; }
+        .pending-reject { color: var(--danger); border-left: 1px solid #e2e8f0; }
         .pending-reject:hover { background: #fee2e2; }
 
         .editor-footer {
@@ -304,28 +301,13 @@
             border-top: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
-            align-items: center;
             gap: 12px;
             flex-wrap: wrap;
             flex-shrink: 0;
+            position: relative;
         }
 
-        .footer-group { 
-            display: flex; 
-            gap: 10px; 
-            flex-wrap: wrap; 
-            flex: 1; 
-        }
-
-        .word-count-display {
-            font-size: 0.8rem;
-            color: var(--text-light);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            text-align: center;
-            min-width: 120px;
-        }
+        .footer-group { display: flex; gap: 10px; flex-wrap: wrap; }
 
         .sidebar-subtext {
             margin: -4px 0 0 0;
@@ -370,6 +352,7 @@
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
 
+        /* Clear Stars for Inactive */
         .star-icon {
             color: #94a3b8; 
             font-size: 1.2rem;
@@ -425,7 +408,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.3);
             flex-shrink: 0;
         }
         .auto-mark-btn.loading { animation: spin 1s linear infinite; opacity: 0.7; pointer-events: none; }
@@ -434,8 +417,8 @@
 
         .accept-all-btn {
             background: #f5f3ff;
-            color: var(--primary);
-            border: 1.5px solid var(--primary);
+            color: var(--magic);
+            border: 1.5px solid var(--magic);
             padding: 6px 14px;
             border-radius: 20px;
             font-size: 0.75rem;
@@ -445,7 +428,7 @@
             text-transform: uppercase;
             letter-spacing: 0.02em;
         }
-        .accept-all-btn:hover { background: var(--primary); color: white; }
+        .accept-all-btn:hover { background: var(--magic); color: white; }
 
         .action-btn {
             padding: 10px 16px;
@@ -466,6 +449,7 @@
 
         .action-btn:hover { background: var(--primary-hover); }
         .action-btn.secondary { background: #e2e8f0; color: #475569; }
+        .action-btn.secondary:disabled { opacity: 0.5; cursor: not-allowed; }
         .action-btn.success { background: var(--success); }
 
         .floating-remove-btn {
@@ -479,8 +463,8 @@
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 50;
             transform: translate(-50%, -100%);
             margin-top: -8px;
             white-space: nowrap;
@@ -488,8 +472,7 @@
             gap: 6px;
         }
 
-        .floating-remove-btn.visible { display: flex; }
-
+        /* Popup styling upgraded for Grid Layout (Columns of 6) */
         #favorites-popup {
             position: absolute;
             display: none;
@@ -510,12 +493,8 @@
             display: grid;
             grid-template-rows: repeat(6, auto); 
             grid-auto-flow: column;
-            gap: 2px 12px; 
-            padding: 10px;
-            max-width: 95vw;
-            background: #f1f5f9; 
-            border: 1px solid #94a3b8; 
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            gap: 4px 12px; 
+            padding: 12px;
         }
 
         .fav-popup-btn {
@@ -531,17 +510,7 @@
             transition: background 0.15s;
             white-space: nowrap;
         }
-        
-        #favorites-popup.swapping .fav-popup-btn {
-            padding: 5px 12px;
-            font-size: 0.72rem;
-            border-radius: 4px;
-            color: #334155;
-            letter-spacing: 0.02em;
-        }
-        
-        .fav-popup-btn:hover { background: #e2e8f0; color: var(--primary); }
-        #favorites-popup.swapping .fav-popup-btn:hover { background: #cbd5e1; }
+        .fav-popup-btn:hover { background: #f0f9ff; color: var(--primary); }
 
         #toast {
             position: fixed;
@@ -559,6 +528,7 @@
             z-index: 1000;
         }
         #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        #copy-staging { position: absolute; left: -9999px; top: -9999px; }
 
         .tooltip {
             position: fixed;
@@ -578,6 +548,7 @@
         }
         .tooltip-header { color: var(--primary); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; display: block; }
 
+        /* Modal fixes */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -606,29 +577,35 @@
         .modal-body { padding: 24px; overflow-y: auto; flex-grow: 1; }
         .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); background: #f8fafc; display: flex; justify-content: flex-end; gap: 12px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
 
-        .summary-table { width: 100%; border-collapse: collapse; text-align: left; }
-        .summary-table th { padding: 12px 8px; border-bottom: 2px solid var(--border); color: var(--text-light); font-size: 0.85rem; text-transform: uppercase; }
-        .summary-table td { padding: 12px 8px; border-bottom: 1px solid var(--border); }
-        .summary-table tr:last-child td { border-bottom: none; }
-        .summary-code-name { font-weight: 700; color: var(--primary); }
-
         .page-footer { text-align: center; font-size: 0.8rem; color: var(--text-light); padding-top: 20px; margin-top: auto; font-weight: 500; flex-shrink: 0; }
+
+        @media (max-width: 1200px) {
+            body { padding: 14px; overflow: auto; height: auto; min-height: 100dvh; }
+            .container { flex-direction: row; flex-wrap: wrap; min-height: auto; }
+            .editor-column { width: 100%; flex: 0 0 100%; margin-bottom: 10px; }
+            .sidebar-column { flex: 1; min-width: 300px; min-height: 400px; }
+        }
+        @media (max-width: 768px) {
+            .sidebar-column { flex: 0 0 100%; }
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>RAPID MARK</h1>
         <div class="header-actions">
-            <button class="action-btn secondary" id="evidence-mode-btn">Evidence Mode: OFF</button>
+            <button class="action-btn secondary" id="mode-btn" title="Toggle between Analytical and Narrative marking modes">Mode: Analytical</button>
+            <button class="action-btn secondary" id="evidence-mode-btn" title="Toggle evidence / source feedback codes">Evidence Mode: OFF</button>
             <div class="level-selector">
                 <input type="radio" id="lvl-primary" name="student-level" value="upper_primary">
                 <label for="lvl-primary">Upper Primary</label>
+
                 <input type="radio" id="lvl-lower" name="student-level" value="lower_sec" checked>
                 <label for="lvl-lower">Lower Secondary</label>
+
                 <input type="radio" id="lvl-upper" name="student-level" value="upper_sec">
                 <label for="lvl-upper">Upper Secondary</label>
             </div>
-            <button class="action-btn secondary" id="faculty-sync-btn">Faculty Sync</button>
             <button class="action-btn success" id="class-summary-btn">Class Summary</button>
         </div>
     </div>
@@ -637,41 +614,38 @@
         <div class="editor-column">
             <div class="column-header">
                 <div class="title-row">
-                    <h2 style="display: flex; align-items: center; gap: 12px;">
-                        Student Writing
-                        <div class="toggle-wrapper" style="display: inline-flex;">
-                            <span style="font-size: 0.65rem; color: #64748b; letter-spacing: 0.05em;">Favourites</span>
-                            <label class="switch" style="margin-left: 6px;">
+                    <h2>Student Writing
+                        <div class="toggle-wrapper" style="margin-left: 14px;">
+                            <span>Favourites</span>
+                            <label class="switch">
                                 <input type="checkbox" id="favorites-toggle">
                                 <span class="slider"></span>
                             </label>
                         </div>
                     </h2>
                     <div class="header-controls">
-                        <div class="toggle-wrapper">
-                            <span>Scan Tips</span>
-                            <label class="switch">
-                                <input type="checkbox" id="scan-tips-toggle">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
                         <button class="accept-all-btn" id="accept-all-btn" style="display:none;">Confirm All</button>
-                        <button class="auto-mark-btn" id="run-auto-mark-btn" data-tooltip-title="✨ Scan" data-tooltip-desc="Draft Scan: Automated mechanical proofreading.">✨</button>
+                        <button class="auto-mark-btn" id="run-auto-mark-btn" data-tooltip-title="✨ Auto Mark" data-tooltip-desc="Lightning fast offline mechanical scan.">✨</button>
                     </div>
                 </div>
                 <p class="sidebar-subtext" style="visibility: hidden;">Placeholder</p>
             </div>
             <div class="editor-wrapper">
-                <div id="editor" contenteditable="true" data-placeholder="1. Paste student text here.&#10;2. Tap ✨ to scan.&#10;3. Or manually select text and click a code.&#10;4. Type [[ to insert a custom tag."></div>
+                <div id="editor" contenteditable="true" data-placeholder="1. Paste student text here.&#10;2. Double-click or drag text to highlight it and type an inline comment.&#10;3. Single-click to select a rubric code from the Favourites menu.&#10;4. Tap ✨ to auto-scan for feedback."></div>
+
                 <button class="floating-remove-btn" id="remove-code-btn">Remove</button>
                 <div id="favorites-popup"></div>
+
                 <div class="editor-footer">
-                    <div class="footer-group" style="justify-content: flex-start;">
+                    <div class="footer-group">
                         <button class="action-btn secondary" id="clear-btn">Clear Text</button>
-                        <button class="action-btn secondary" id="undo-btn" style="display:none;">Undo</button>
+                        <button class="action-btn secondary" id="undo-btn" disabled title="Undo (Ctrl+Z)">
+                            <svg style="width:16px;height:16px;margin-right:4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+                            Undo
+                        </button>
                     </div>
-                    <div class="word-count-display" id="word-count">0 words</div>
-                    <div class="footer-group" style="justify-content: flex-end;">
+                    <div id="word-count-display" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 0.85rem; color: var(--text-light); font-weight: 700; white-space: nowrap;">0 words</div>
+                    <div class="footer-group">
                         <button class="action-btn" id="copy-btn">Copy Feedback</button>
                     </div>
                 </div>
@@ -683,7 +657,7 @@
                 <div class="title-row">
                     <h2>STRUCTURE</h2>
                     <div class="toggle-wrapper">
-                        <span>CODE TIPS</span>
+                        <span>Tips</span>
                         <label class="switch">
                             <input type="checkbox" id="tooltip-toggle">
                             <span class="slider"></span>
@@ -718,6 +692,11 @@
         </div>
     </div>
 
+    <div class="page-footer">
+        &copy; 2026 Nic Comino. All rights reserved.
+    </div>
+
+    <!-- Class Summary Modal -->
     <div id="summary-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -732,693 +711,1046 @@
         </div>
     </div>
 
-    <div id="faculty-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Faculty Data Sync</h2>
-                <button class="modal-close" id="close-faculty-modal-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p style="margin-top:0; color: var(--text-light); line-height: 1.6;">
-                    Standardise marking across your department. Download the CSV template, add your faculty's agreed feedback codes, and have your teachers import it here.
-                </p>
-                <p style="font-size: 0.85rem; color: var(--danger); font-weight: 600;">
-                    Note: Importing a CSV will overwrite any existing custom codes you have added manually.
-                </p>
-                <div style="display:flex; gap:12px; margin-top:24px;">
-                    <button class="action-btn secondary" id="download-csv-btn">⬇️ Download Template</button>
-                    <button class="action-btn success" id="upload-csv-trigger">⬆️ Import CSV File</button>
-                    <input type="file" id="csv-upload-input" accept=".csv" style="display:none;">
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div id="toast">Copied to clipboard.</div>
-
+    <div id="copy-staging"></div>
     <div id="tooltip" class="tooltip"></div>
 
+    <!-- LINK THE SEPARATE ENGINE FILE HERE -->
+    <script src="rapid-engine.js"></script>
+
     <script>
-        // --- RAPID ENGINE ---
-        const RapidEngine = (function() {
-            const CALIBRATION = {
-                upper_primary: { runOnWordLimit: 20, runOnPunctMin: 1, stopWordMax: 2, vagueTiers: 1, repetitionStemLength: 4, tenseWindow: 2 },
-                lower_sec: { runOnWordLimit: 30, runOnPunctMin: 2, stopWordMax: 1, vagueTiers: 2, repetitionStemLength: 4, tenseWindow: 3 },
-                upper_sec: { runOnWordLimit: 40, runOnPunctMin: 3, stopWordMax: 0, vagueTiers: 3, repetitionStemLength: 5, tenseWindow: 3 }
-            };
-            const DICTS = {
-                fanboys: ['and', 'but', 'so', 'or', 'yet', 'for', 'nor'],
-                subordinators: ['because', 'although', 'even though', 'since', 'unless', 'whereas', 'while', 'which', 'that', 'if', 'until', 'before', 'after'],
-                vagueTier1: ['good', 'bad', 'stuff', 'things', 'a lot of', 'huge'],
-                vagueTier2: ['many things', 'huge impact', "in today's society", 'back in the day', 'changed everything', 'played a role'],
-                vagueTier3: ['since the dawn of time', 'throughout history', 'human nature', 'society says', 'it is clear that', 'undeniable', 'needless to say'],
-                reportingVerbs: ['said', 'stated', 'argued', 'writes', 'notes', 'claims', 'suggests', 'implies', 'demonstrates', 'shows', 'explains', 'reveals', 'highlights', 'asserts', 'contends'],
-                pastMarkers: ['was', 'were', 'had', 'did', 'went', 'came', 'made', 'saw', 'told', 'became', 'looked', 'seemed', 'tried', 'wanted', 'needed', 'used', 'fought', 'returned', 'showed'],
-                presentMarkers: ['is', 'are', 'has', 'does', 'goes', 'comes', 'makes', 'sees', 'tells', 'becomes', 'looks', 'seems', 'tries', 'wants', 'needs', 'uses', 'fight', 'return', 'show'],
-                abbreviations: ['mr', 'mrs', 'ms', 'dr', 'prof', 'st', 'vs', 'i.e', 'e.g', 'etc']
-            };
+        // ==========================================
+        // UI & STATE MANAGEMENT
+        // ==========================================
+        let evidenceMode = false;
+        let isNarrativeMode = false;
 
-            function splitIntoSentences(text) {
-                // Ensure smart quotes are not destroyed in the raw text so we can match against HTML later
-                let splitText = text.replace(/\.\.\./g, "___ELLIPSIS___");
-                DICTS.abbreviations.forEach(abbr => { splitText = splitText.replace(new RegExp(`\\b${abbr}\\.`, 'gi'), `${abbr}@@@`); });
-                
-                // Keep the punctuation attached to the string segment
-                const tokens = splitText.replace(/([.!?]+)(?=\s+["”'’]?[A-Za-z])/g, "$1|SPLIT|").split("|SPLIT|");
-                
-                return tokens.map((raw, i) => {
-                    let restored = raw.replace(/@@@/g, '.').replace(/___ELLIPSIS___/g, "...");
-                    let trimmed = restored.trim();
-                    if (!trimmed) return null;
-                    
-                    // Normalize ONLY for the logic engine (convert smart quotes to straight just to analyze words)
-                    let normalized = trimmed.toLowerCase().replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
-                    const words = normalized.replace(/[^a-z0-9'\s-]/gi, '').split(/\s+/).filter(Boolean);
-                    
-                    return { 
-                        id: i, 
-                        raw: restored, 
-                        trimmed: trimmed, // This preserves original smart quotes for perfect regex matching!
-                        words: words, 
-                        wordCount: words.length, 
-                        commaCount: (trimmed.match(/,/g) || []).length, 
-                        hasQuote: /["“”]/.test(trimmed) 
-                    };
-                }).filter(Boolean);
-            }
-
-            return {
-                analyze: function(text, level) {
-                    const cfg = CALIBRATION[level] || CALIBRATION.lower_sec;
-                    const sentences = splitIntoSentences(text);
-                    const flags = [];
-                    
-                    sentences.forEach((s, idx) => {
-                        // 1. Run-on 
-                        if (s.wordCount > cfg.runOnWordLimit && s.commaCount < cfg.runOnPunctMin) 
-                            flags.push({ code: "SPLIT THIS RUN-ON", spanText: s.trimmed, reason: `Scan Report: ${s.wordCount} words, ${s.commaCount} commas.` });
-                        
-                        // 2. Fragment
-                        if (s.words.length > 0 && DICTS.subordinators.includes(s.words[0]) && s.commaCount === 0 && s.wordCount < 15) 
-                            flags.push({ code: "FIX THIS FRAGMENT", spanText: s.trimmed, reason: `Scan Report: Starts with '${s.words[0]}' without a main clause.` });
-                        
-                        // 3. Vague Statements
-                        let lists = [...DICTS.vagueTier1]; 
-                        if(cfg.vagueTiers >= 2) lists.push(...DICTS.vagueTier2); 
-                        if(cfg.vagueTiers === 3) lists.push(...DICTS.vagueTier3);
-                        for (const ph of lists) { 
-                            if (new RegExp(`\\b${ph}\\b`, 'i').test(s.trimmed)) { 
-                                flags.push({ code: "VAGUE STATEMENT", spanText: s.trimmed, reason: `Scan Report: Imprecise phrasing detected.` }); 
-                                break; // Only 1 vague flag per sentence
-                            } 
-                        }
-                        
-                        // 4. Quote Intro
-                        if (s.hasQuote && s.words.length > 0 && !s.words.some(w => DICTS.reportingVerbs.includes(w))) 
-                            flags.push({ code: "QUOTE NOT INTRODUCED", spanText: s.trimmed, reason: "Scan Report: No reporting verb detected." });
-                        
-                        // 5. Proofreading (Capitals)
-                        if (/^\s*[a-z]/.test(s.raw) || /(^|[\s(])i([\s,.!?;:)\]])/g.test(s.raw)) 
-                            flags.push({ code: "PROOFREADING NEEDED", spanText: s.trimmed, reason: "Scan Report: Capitals error." });
-                            
-                        // 6. Mix Tense
-                        let pastCount = s.words.filter(w => DICTS.pastMarkers.includes(w)).length;
-                        let presCount = s.words.filter(w => DICTS.presentMarkers.includes(w)).length;
-                        if (pastCount > 0 && presCount > 0 && (pastCount + presCount) >= 2) {
-                            flags.push({ code: "MIXING TENSE", spanText: s.trimmed, reason: `Scan Report: Mixed past and present tense verbs.` });
-                        }
-                        
-                        // 7. Repetition (Internal & Adjacent)
-                        const longWords = s.words.filter(w => w.length >= cfg.repetitionStemLength && !DICTS.vagueTier1.includes(w) && !DICTS.fanboys.includes(w) && !DICTS.subordinators.includes(w));
-                        let repeated = false;
-                        
-                        // Check Internal Repetition
-                        const roots = new Set();
-                        for (let w of longWords) {
-                            const stem = w.substring(0, cfg.repetitionStemLength);
-                            if (roots.has(stem)) { repeated = true; break; }
-                            roots.add(stem);
-                        }
-                        
-                        // Check Adjacent Repetition
-                        if (!repeated && idx > 0) {
-                            const prevWords = sentences[idx - 1].words.filter(w => w.length >= cfg.repetitionStemLength);
-                            for (let w of longWords) {
-                                const stem = w.substring(0, cfg.repetitionStemLength);
-                                if (prevWords.some(pw => pw.startsWith(stem))) { repeated = true; break; }
-                            }
-                        }
-                        
-                        if (repeated) {
-                            flags.push({ code: "REPETITION", spanText: s.trimmed, reason: `Scan Report: Repeated vocabulary detected.` });
-                        }
-                    });
-                    return flags;
-                }
-            };
-        })();
-
-        // --- APP DATA ---
         const baseCodeData = {
-            'FIX THIS FRAGMENT': { category: 'structure', explanation: 'Incomplete sentence missing a main subject or verb.', examples: { upper_primary: '"Because I was tired." ➔ "I slept because I was tired."', lower_sec: '"Running through the forest." ➔ "She was running through the forest."', upper_sec: '"Although the results were inconclusive." ➔ "Although the results were inconclusive, they suggest a trend."' } },
-            'SPLIT THIS RUN-ON': { category: 'structure', explanation: 'Sentences joined without proper punctuation.', examples: { upper_primary: '"I like dogs they are fun." ➔ "I like dogs. They are fun."', lower_sec: '"We went to the beach it was raining..." ➔ "We went to the beach, but it was raining."', upper_sec: '"The experiment failed however..." ➔ "The experiment failed; however, ..."' } },
-            'MIXING TENSE': { category: 'structure', explanation: 'Verb tenses are inconsistent.', examples: { upper_primary: '"I ran and jump." ➔ "I ran and jumped."', lower_sec: '"He says... and then he walked." ➔ "He said... and then he walked."', upper_sec: '"The author argues... and noted." ➔ "The author argues... and notes."' } },
-            'EXPAND IDEA': { category: 'structure', explanation: 'Give more detail or context.', examples: { upper_primary: '"My weekend was fun." ➔ "My weekend was fun because I went to the zoo."', lower_sec: '"The character felt sad." ➔ "The character felt sad, shown through silence."', upper_sec: '"The treaty ended the war." ➔ "The treaty ended the war but also created harsh conditions."' } },
-            'ADD MORE DEPTH': { category: 'structure', explanation: 'Go beyond summary. Analyse how or why it matters.', examples: { upper_primary: '"The plant grew." ➔ "The plant grew because it had water."', lower_sec: '"The author uses a metaphor." ➔ "The author uses a metaphor to highlight isolation."', upper_sec: '"The protagonist is conflicted." ➔ "The protagonist’s conflict mirrors wider social tension."' } },
-            'EXPLAIN WHY': { category: 'structure', explanation: 'Support this point with a reason, evidence, or logical link.', examples: { upper_primary: '"Math is hard." ➔ "Math is hard because there are many rules."', lower_sec: '"The plan failed." ➔ "The plan failed because the group did not communicate."', upper_sec: '"This policy is ineffective." ➔ "This policy is ineffective because it ignores the root cause."' } },
-            'CHECK WORD COUNT': { category: 'structure', explanation: 'This section may be too brief or too long. Adjust it to suit the task.', examples: { upper_primary: 'Aim for at least 3 complete sentences.', lower_sec: 'Aim for 5–7 developed sentences in this paragraph.', upper_sec: 'Meet the length requirement without padding.' } },
-            'REPEATED IDEA': { category: 'structure', explanation: 'You have already made this point. Move to a fresh idea or combine the sentences.', examples: { upper_primary: '"I like pizza. Pizza is my favourite." ➔ "Pizza is my favourite food."', lower_sec: '"The hero was courageous. He showed a lot of bravery." ➔ "The hero demonstrated immense courage."', upper_sec: '"The data is redundant." ➔ "The data is redundant."' } },
-            'VAGUE STATEMENT': { category: 'expression', explanation: 'Phrasing is too general.', examples: { upper_primary: '"The book was good." ➔ "The book was exciting because of plot twists."', lower_sec: '"People think pollution is bad." ➔ "Many people argue that plastic harms sea life."', upper_sec: '"Society has changed a lot." ➔ "Technology has significantly changed how people communicate."' } },
-            'AWKWARD PHRASING': { category: 'expression', explanation: 'Unnatural or clumsy wording.', examples: { upper_primary: '"The ball was throwed." ➔ "He threw the ball."', lower_sec: '"For the making of the project..." ➔ "We used glue to make the project."', upper_sec: '"The reason for the delay was due to the fact that..." ➔ "The delay occurred because..."' } },
+            'FIX THIS FRAGMENT': { category: 'structure', explanation: 'This is an incomplete sentence missing a main subject or verb.', examples: { upper_primary: '"Because I was tired." ➔ "I slept because I was tired."', lower_sec: '"Running through the dark forest." ➔ "She was running through the dark forest."', upper_sec: '"Although the results were largely inconclusive." ➔ "Although the results were largely inconclusive, they suggest a trend."' } },
+            'SPLIT THIS RUN-ON': { category: 'structure', explanation: 'Two or more complete sentences are joined without proper punctuation.', examples: { upper_primary: '"I like dogs they are fun." ➔ "I like dogs. They are fun."', lower_sec: '"We went to the beach it was raining we went home." ➔ "We went to the beach, but it was raining. We went home."', upper_sec: '"The experiment failed however we gathered useful data." ➔ "The experiment failed; however, we gathered useful data."' } },
+            'MIXING TENSE': { category: 'structure', explanation: 'Keep your verbs in the same time period throughout the sentence or paragraph.', examples: { upper_primary: '"I ran and jump." ➔ "I ran and jumped."', lower_sec: '"He says... and then he walked." ➔ "He said... and then he walked."', upper_sec: '"The author argues... and noted." ➔ "The author argues... and notes."' } },
+            'REPEATED IDEA': { category: 'structure', explanation: 'You have already made this point. Move to a fresh idea or combine the sentences.', examples: { upper_primary: '"I like pizza. Pizza is my favourite. I enjoy eating pizza." ➔ "Pizza is my favourite food."', lower_sec: '"The hero was courageous. He showed a lot of bravery." ➔ "The hero demonstrated immense courage."', upper_sec: '"The data is redundant. It repeats the same information." ➔ "The data is redundant."' } },
+            'EXPAND IDEA': { category: 'structure', explanation: 'Give more detail, context, or evidence so the idea is fully developed.', examples: { upper_primary: '"My weekend was fun." ➔ "My weekend was fun because I went to the zoo and saw lions."', lower_sec: '"The character felt sad." ➔ "The character felt sad, shown through his silence and withdrawal."', upper_sec: '"The treaty ended the war." ➔ "The treaty ended the war but also created harsh conditions that led to future conflict."' } },
+            'ADD MORE DEPTH': { category: 'structure', explanation: 'Go beyond summary. Analyse how or why it matters.', examples: { upper_primary: '"The plant grew." ➔ "The plant grew because it had water and sunlight."', lower_sec: '"The author uses a metaphor." ➔ "The author uses a metaphor to highlight the character’s isolation."', upper_sec: '"The protagonist is conflicted." ➔ "The protagonist’s conflict mirrors the wider social tension in the text."' } },
+            'EXPLAIN WHY': { category: 'structure', explanation: 'Support this point with a reason, evidence, or logical link.', examples: { upper_primary: '"Math is hard." ➔ "Math is hard because there are many rules to remember."', lower_sec: '"The plan failed." ➔ "The plan failed because the group did not communicate clearly."', upper_sec: '"This policy is ineffective." ➔ "This policy is ineffective because it does not address the root cause."' } },
+            'CHECK WORD COUNT': { category: 'structure', explanation: 'This section may be too brief or too long. Adjust it to suit the task.', examples: { upper_primary: 'Aim for at least 3 complete sentences.', lower_sec: 'Aim for 5–7 developed sentences in this paragraph.', upper_sec: 'Meet the length requirement without padding the response.' } },
+            'PROOFREADING NEEDED': { category: 'expression', explanation: 'Check spelling, punctuation, capitals, and small errors.', examples: { upper_primary: '"i went to the park" ➔ "I went to the park."', lower_sec: '"Their going to the store." ➔ "They’re going to the store."', upper_sec: '"The data indicates it’s effect." ➔ "The data indicates its effect."' } },
+            'AWKWARD PHRASING': { category: 'expression', explanation: 'This wording sounds unnatural or clumsy. Read it aloud and smooth it out.', examples: { upper_primary: '"The ball was throwed by him." ➔ "He threw the ball."', lower_sec: '"For the making of the project we used glue." ➔ "We used glue to make the project."', upper_sec: '"The reason for the delay was due to the fact that..." ➔ "The delay occurred because..."' } },
             'SENTENCE UNCLEAR': { category: 'expression', explanation: 'The meaning is difficult to follow. Rewrite it more clearly.', examples: { upper_primary: '"The thing did the stuff." ➔ "The machine sorted the blocks."', lower_sec: '"He told him that he should go." ➔ "John told Mark to leave."', upper_sec: '"The overarching theme encapsulates the dichotomy." ➔ "The main theme highlights the internal conflict."' } },
+            'VAGUE STATEMENT': { category: 'expression', explanation: 'This point is too general. Add something specific.', examples: { upper_primary: '"The book was good." ➔ "The book was exciting because of the plot twists."', lower_sec: '"People think pollution is bad." ➔ "Many people argue that plastic pollution harms sea life."', upper_sec: '"Society has changed a lot." ➔ "Technology has significantly changed how people communicate."' } },
             'TOO MANY STOP WORDS': { category: 'expression', explanation: 'Cut filler words and weak wording so the sentence sounds stronger.', examples: { upper_primary: '"It was really very big." ➔ "It was enormous."', lower_sec: '"I just think that it is basically true." ➔ "I believe it is true."', upper_sec: '"In my personal opinion, it is completely evident that..." ➔ "It is evident that..."' } },
-            'REPETITION': { category: 'expression', explanation: 'A key word or phrase is repeated too closely. Vary it or combine the ideas.', examples: { upper_primary: '"The big dog chased the big cat." ➔ "The large dog chased the big cat."', lower_sec: '"The author shows... This shows..." ➔ "The author presents... This demonstrates..."', upper_sec: '"The study focuses on the effects. The effects were significant." ➔ "The study focuses on the significant impacts."' } },
-            'PROOFREADING NEEDED': { category: 'expression', explanation: 'Visible mechanical errors.', examples: { upper_primary: '"i went to the park" ➔ "I went to the park."', lower_sec: '"Their going to the store." ➔ "They’re going to the store."', upper_sec: '"The data indicates it’s effect." ➔ "The data indicates its effect."' } },
-            'ADD EVIDENCE': { category: 'evidence', explanation: 'Support your claim with a quotation, example, or factual detail.', examples: { upper_primary: 'Add a sentence showing where this idea appears.', lower_sec: 'Include a quote or specific detail.', upper_sec: 'Integrate a relevant quotation or reference.' } },
+            'REPETITION': { category: 'expression', explanation: 'A key word or phrase is repeated too closely. Vary it or combine the ideas.', examples: { upper_primary: '"The big dog chased the big cat." ➔ "The large dog chased the big cat."', lower_sec: '"The author shows that the character is brave. This shows bravery." ➔ "The author presents the character as courageous."', upper_sec: '"The study focuses on the effects. The effects were significant." ➔ "The study focuses on the significant impacts."' } },
+            'ADD EVIDENCE': { category: 'evidence', explanation: 'Support your claim with a quotation, example, or factual detail from the text or source.', examples: { upper_primary: 'Add a sentence showing where this idea appears in the text.', lower_sec: 'Include a quote or specific detail from the text.', upper_sec: 'Integrate a relevant quotation or reference from the source.' } },
             'EXPLAIN THE EVIDENCE': { category: 'evidence', explanation: 'Do not leave the quote alone. Explain how it proves your point.', examples: { upper_primary: 'Explain how the example proves your idea.', lower_sec: 'Show how the quote supports your argument.', upper_sec: 'Analyse the evidence and connect it to your claim.' } },
-            'LINK BACK TO QUESTION': { category: 'evidence', explanation: 'Your paragraph should clearly connect back to the essay question.', examples: { upper_primary: 'Remind the reader what the question is asking.', lower_sec: 'Connect this idea clearly to the task question.', upper_sec: 'Explicitly link this analysis back to your thesis.' } },
-            'QUOTE NOT INTRODUCED': { category: 'evidence', explanation: 'Introduce the quote with a reporting verb.', examples: { upper_primary: 'Explain who said the quote.', lower_sec: 'Introduce the quote with context.', upper_sec: 'Integrate the quote grammatically into your sentence.' } }
+            'LINK BACK TO QUESTION': { category: 'evidence', explanation: 'Your paragraph should clearly connect back to the essay question or argument.', examples: { upper_primary: 'Remind the reader what the question is asking.', lower_sec: 'Connect this idea clearly to the task question.', upper_sec: 'Explicitly link this analysis back to your thesis.' } },
+            'QUOTE NOT INTRODUCED': { category: 'evidence', explanation: 'Introduce the quote before using it. Tell the reader who said it or where it comes from.', examples: { upper_primary: 'Explain who said the quote.', lower_sec: 'Introduce the quote with context.', upper_sec: 'Integrate the quote grammatically into your sentence.' } }
         };
 
-        const CUSTOM_STORAGE_KEY = 'annotatorCustomCodesV2', CLASS_SUMMARY_KEY = 'annotatorClassSummaryV2', EDITOR_DRAFT_KEY = 'annotatorEditorDraftV2', FAVORITES_KEY = 'annotatorFavoritesV2', TOOLTIP_PREF_KEY = 'annotatorTooltipsEnabledV2', FAV_TOGGLE_PREF_KEY = 'annotatorFavoritesToggleV2', SCAN_TIPS_PREF_KEY = 'annotatorScanTipsEnabledV2';
-        let savedCustomCodes = {}, classSummaryCounts = {}, favoriteCodes = ["AWKWARD PHRASING", "FIX THIS FRAGMENT"], tooltipsEnabled = true, favoritesEnabled = true, scanTipsEnabled = false, savedDraft = null, evidenceMode = false;
+        const CUSTOM_STORAGE_KEY = 'annotatorCustomCodesV2';
+        const CLASS_SUMMARY_KEY = 'annotatorClassSummaryV2';
+        const EDITOR_DRAFT_KEY = 'annotatorEditorDraftV2';
+        const FAVORITES_KEY = 'annotatorFavoritesV2';
+        const TOOLTIP_PREF_KEY = 'annotatorTooltipsEnabledV2';
+        const FAV_TOGGLE_PREF_KEY = 'annotatorFavoritesToggleV2';
+
+        let savedCustomCodes = {};
+        let classSummaryCounts = {};
+        let favoriteCodes = ["AWKWARD PHRASING", "FIX THIS FRAGMENT", "EXPAND IDEA"];
+        let tooltipsEnabled = true;
+        let favoritesEnabled = true;
+        let savedDraft = null;
 
         try { savedCustomCodes = JSON.parse(localStorage.getItem(CUSTOM_STORAGE_KEY) || '{}'); } catch (e) {}
         try { classSummaryCounts = JSON.parse(localStorage.getItem(CLASS_SUMMARY_KEY) || '{}'); } catch (e) {}
         try { const favs = localStorage.getItem(FAVORITES_KEY); if (favs) favoriteCodes = JSON.parse(favs); } catch (e) {}
-        try { const tp = localStorage.getItem(TOOLTIP_PREF_KEY); if (tp !== null) tooltipsEnabled = JSON.parse(tp); } catch (e) {}
-        try { const fp = localStorage.getItem(FAV_TOGGLE_PREF_KEY); if (fp !== null) favoritesEnabled = JSON.parse(fp); } catch (e) {}
-        try { const sp = localStorage.getItem(SCAN_TIPS_PREF_KEY); if (sp !== null) scanTipsEnabled = JSON.parse(sp); } catch (e) {}
+        try { const tpref = localStorage.getItem(TOOLTIP_PREF_KEY); if (tpref !== null) tooltipsEnabled = JSON.parse(tpref); } catch (e) {}
+        try { const fpref = localStorage.getItem(FAV_TOGGLE_PREF_KEY); if (fpref !== null) favoritesEnabled = JSON.parse(fpref); } catch (e) {}
         try { savedDraft = localStorage.getItem(EDITOR_DRAFT_KEY); } catch (e) {}
 
         const codeData = { ...baseCodeData, ...savedCustomCodes };
-        const editor = document.getElementById('editor'), codesContainer1 = document.getElementById('codes-container-1'), codesContainer2 = document.getElementById('codes-container-2'), toast = document.getElementById('toast'), summaryModal = document.getElementById('summary-modal'), modalBodyContent = document.getElementById('modal-body-content'), favPopup = document.getElementById('favorites-popup'), acceptAllBtn = document.getElementById('accept-all-btn'), tooltip = document.getElementById('tooltip'), magicBtn = document.getElementById('run-auto-mark-btn'), favoritesToggle = document.getElementById('favorites-toggle'), tooltipToggle = document.getElementById('tooltip-toggle'), scanTipsToggle = document.getElementById('scan-tips-toggle'), evidenceModeBtn = document.getElementById('evidence-mode-btn'), classSummaryBtn = document.getElementById('class-summary-btn'), closeModalBtn = document.getElementById('close-modal-btn'), copyResetBtn = document.getElementById('copy-reset-btn'), copyOnlyBtn = document.getElementById('copy-only-btn'), removeCodeBtn = document.getElementById('remove-code-btn'), clearBtn = document.getElementById('clear-btn'), undoBtn = document.getElementById('undo-btn'), copyBtn = document.getElementById('copy-btn'), addCodeBtn1 = document.getElementById('add-code-btn-1'), addCodeBtn2 = document.getElementById('add-code-btn-2'), newCodeInput1 = document.getElementById('new-code-input-1'), newCodeInput2 = document.getElementById('new-code-input-2'), editorWrapper = document.querySelector('.editor-wrapper'), wordCountDisplay = document.getElementById('word-count');
         
-        const facultySyncBtn = document.getElementById('faculty-sync-btn');
-        const facultyModal = document.getElementById('faculty-modal');
-        const closeFacultyModalBtn = document.getElementById('close-faculty-modal-btn');
-        const downloadCsvBtn = document.getElementById('download-csv-btn');
-        const uploadCsvTrigger = document.getElementById('upload-csv-trigger');
-        const csvUploadInput = document.getElementById('csv-upload-input');
+        const editor = document.getElementById('editor');
+        const editorWrapper = document.querySelector('.editor-wrapper');
+        const codesContainer1 = document.getElementById('codes-container-1');
+        const codesContainer2 = document.getElementById('codes-container-2');
+        const toast = document.getElementById('toast');
+        const summaryModal = document.getElementById('summary-modal');
+        const modalBodyContent = document.getElementById('modal-body-content');
+        const favPopup = document.getElementById('favorites-popup');
+        const acceptAllBtn = document.getElementById('accept-all-btn');
+        const tooltip = document.getElementById('tooltip');
+        const magicBtn = document.getElementById('run-auto-mark-btn');
+        
+        const evidenceModeBtn = document.getElementById('evidence-mode-btn');
+        const modeBtn = document.getElementById('mode-btn');
+        const classSummaryBtn = document.getElementById('class-summary-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const copyResetBtn = document.getElementById('copy-reset-btn');
+        const copyOnlyBtn = document.getElementById('copy-only-btn');
+        const removeCodeBtn = document.getElementById('remove-code-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const undoBtn = document.getElementById('undo-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const addCodeBtn1 = document.getElementById('add-code-btn-1');
+        const addCodeBtn2 = document.getElementById('add-code-btn-2');
+        const newCodeInput1 = document.getElementById('new-code-input-1');
+        const newCodeInput2 = document.getElementById('new-code-input-2');
+        const copyStaging = document.getElementById('copy-staging');
+        const favoritesToggle = document.getElementById('favorites-toggle');
+        const tooltipToggle = document.getElementById('tooltip-toggle');
+        const wordCountDisplay = document.getElementById('word-count-display');
 
-        let activeTag = null, swappingTag = null, lastClearedContent = null, hoverTimer = null, lastHoverTarget = null;
+        let activeTag = null;
+        let swappingTag = null;
+        let hideToastTimer = null;
+        let hoverTimer = null;
+        let lastHoverTarget = null;
+        let favPopupTimer = null;
 
-        favoritesToggle.checked = favoritesEnabled; if (tooltipToggle) tooltipToggle.checked = tooltipsEnabled; scanTipsToggle.checked = scanTipsEnabled;
+        let editorHistory = [];
+        let historyIndex = -1;
+        let typingTimer = null;
+
+        favoritesToggle.checked = favoritesEnabled;
+        if (tooltipToggle) tooltipToggle.checked = tooltipsEnabled;
+
+        const showToast = (message) => {
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(hideToastTimer);
+            hideToastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+        };
 
         const updateWordCount = () => {
-            const temp = document.createElement('div');
-            temp.innerHTML = editor.innerHTML;
-            temp.querySelectorAll('strong, .pending-tag').forEach(el => el.remove());
-            const text = temp.innerText || "";
-            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
-            wordCountDisplay.textContent = `${words.length} ${words.length === 1 ? 'word' : 'words'}`;
+            if (!wordCountDisplay) return;
+            const text = editor.innerText || '';
+            const cleanText = text.replace(/\[.*?\]/g, '').trim();
+            const count = cleanText ? cleanText.split(/\s+/).filter(w => w.length > 0).length : 0;
+            wordCountDisplay.textContent = `${count} word${count === 1 ? '' : 's'}`;
         };
 
-        const showToast = (m) => { toast.textContent = m; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2600); };
-        const saveDraft = () => { try { localStorage.setItem(EDITOR_DRAFT_KEY, editor.innerHTML); } catch (e) {} };
-        const getSelectedLevel = () => document.querySelector('input[name="student-level"]:checked').value;
-        
-        const hideOverlays = () => { 
-            if (activeTag) activeTag.classList.remove('selected'); 
-            activeTag = null; 
-            swappingTag = null; 
-            removeCodeBtn.classList.remove('visible'); 
-            favPopup.classList.remove('visible'); 
-            favPopup.classList.remove('swapping'); 
-            hideTooltip(); 
+        const saveDraft = () => { 
+            try { localStorage.setItem(EDITOR_DRAFT_KEY, editor.innerHTML); } catch (e) {} 
+            updateWordCount();
         };
-        const hideTooltip = () => { clearTimeout(hoverTimer); hoverTimer = null; lastHoverTarget = null; tooltip.style.display = 'none'; };
+        const saveClassSummary = () => { try { localStorage.setItem(CLASS_SUMMARY_KEY, JSON.stringify(classSummaryCounts)); } catch (e) {} };
+        const saveCustomCodes = () => {
+            const customOnly = {};
+            Object.keys(codeData).forEach(key => { if (!baseCodeData[key]) customOnly[key] = codeData[key]; });
+            try { localStorage.setItem(CUSTOM_STORAGE_KEY, JSON.stringify(customOnly)); } catch (e) {}
+        };
 
-        const showTooltip = (btn) => {
-            let title = '', desc = '', ex = '';
-            if (btn.classList.contains('pending-tag')) { 
-                if (!scanTipsEnabled) return; 
-                title = "Scan Report"; desc = btn.dataset.reason || "Analysis"; 
-            }
-            else if (btn.dataset.code) { 
-                if (!tooltipsEnabled) return;
-                const d = codeData[btn.dataset.code]; if (!d) return; title = btn.dataset.code; desc = d.explanation; ex = d.examples?.[getSelectedLevel()] || ''; 
-            }
-            else if (btn.dataset.tooltipTitle) { 
-                title = btn.dataset.tooltipTitle; desc = btn.dataset.tooltipDesc; 
-            }
-            else return;
+        function saveHistory() {
+            const content = editor.innerHTML;
+            if (historyIndex >= 0 && editorHistory[historyIndex] === content) return;
             
-            tooltip.innerHTML = `<span class="tooltip-header">${title}</span><div>${desc}</div>${ex ? `<div style="margin-top:6px; color:#cbd5e1; font-style:italic;">Example: ${ex}</div>` : ''}`;
-            const r = btn.getBoundingClientRect(), tw = 300; let t = Math.min(window.innerHeight - 20, r.top + r.height/2 - 20), l = r.right + 12;
-            if (l + tw > window.innerWidth) l = r.left - tw - 12;
-            tooltip.style.top = `${t}px`; tooltip.style.left = `${Math.max(12, l)}px`; tooltip.style.display = 'block';
-        };
-
-        const attachTooltipHandlers = (btn) => { 
-            btn.addEventListener('mouseenter', () => { 
-                hideTooltip(); lastHoverTarget = btn; hoverTimer = setTimeout(() => { if(lastHoverTarget === btn) showTooltip(btn); }, 200); 
-            }); 
-            btn.addEventListener('mouseleave', hideTooltip); 
-        };
-        attachTooltipHandlers(magicBtn);
-
-        editor.addEventListener('mouseover', (e) => {
-            const p = e.target.closest('.pending-tag');
-            if (p && scanTipsEnabled) {
-                if (!p.contains(e.relatedTarget)) { 
-                    hideTooltip(); lastHoverTarget = p;
-                    hoverTimer = setTimeout(() => { if(lastHoverTarget === p) showTooltip(p); }, 200);
-                }
-            }
-        });
-        editor.addEventListener('mouseout', (e) => {
-            const p = e.target.closest('.pending-tag');
-            if (p && !p.contains(e.relatedTarget)) { 
-                hideTooltip();
-            }
-        });
-
-        document.addEventListener('mousedown', (e) => {
-            if (!e.target.closest('#editor') && !e.target.closest('#favorites-popup') && !e.target.closest('.pending-tag') && !e.target.closest('#remove-code-btn') && !e.target.closest('.code-btn')) {
-                hideOverlays();
-            }
-        });
-
-        function renderButtons() {
-            codesContainer1.innerHTML = ''; codesContainer2.innerHTML = '';
-            Object.keys(codeData).sort((a,b) => { const catA = codeData[a].category, catB = codeData[b].category; if (catA !== catB) return catA.localeCompare(catB); const isCA = !baseCodeData[a], isCB = !baseCodeData[b]; if (isCA && !isCB) return 1; if (!isCA && isCB) return -1; return a.localeCompare(b); }).forEach(code => {
-                const btn = document.createElement('button'); btn.className = 'code-btn'; btn.dataset.code = code; const isFav = favoriteCodes.includes(code), isC = !baseCodeData[code], category = codeData[code].category; if (category === 'evidence' && !evidenceMode) return;
-                btn.innerHTML = `<span>${code}</span><div style="display:flex; align-items:center;">${isC ? `<span class="delete-icon">×</span>` : ''}<span class="star-icon ${isFav?'active':''}">${isFav?'★':'☆'}</span></div>`;
-                const star = btn.querySelector('.star-icon'); star.onclick = (e) => { e.stopPropagation(); toggleFavorite(code, star); };
-                if (isC) { const del = btn.querySelector('.delete-icon'); del.onclick = (e) => { e.stopPropagation(); hideTooltip(); btn.classList.add('is-confirming'); btn.style.borderColor = 'var(--danger)'; btn.style.backgroundColor = '#fef2f2'; btn.innerHTML = `<span style="color:var(--danger); font-size:0.85rem; font-weight:700;">Delete?</span><div style="display:flex; gap:14px; align-items:center;"><span class="confirm-yes" style="color:var(--danger); font-weight:800; cursor:pointer;">Yes</span><span class="confirm-no" style="color:var(--text-light); font-weight:800; cursor:pointer;">No</span></div>`; btn.querySelector('.confirm-yes').onclick = (e2) => { e2.stopPropagation(); delete codeData[code]; saveCustomCodes(); renderButtons(); }; btn.querySelector('.confirm-no').onclick = (e2) => { e2.stopPropagation(); renderButtons(); }; }; }
-                btn.onclick = (e) => { if(!btn.classList.contains('is-confirming')) insertCode(code); }; attachTooltipHandlers(btn);
-                if (category === 'structure') codesContainer1.appendChild(btn); else codesContainer2.appendChild(btn);
-            });
+            editorHistory = editorHistory.slice(0, historyIndex + 1);
+            editorHistory.push(content);
+            
+            if (editorHistory.length > 50) editorHistory.shift(); 
+            else historyIndex++;
+            
+            undoBtn.disabled = historyIndex <= 0;
         }
 
-        function insertCode(code) {
-            editor.focus(); const sel = window.getSelection(); if (!sel.rangeCount) return; const r = sel.getRangeAt(0); let spaceL = false;
-            if (r.startContainer.nodeType === 3 && r.startOffset > 0) { const c = r.startContainer.textContent.charAt(r.startOffset-1); if (c.trim() !== '' && c !== '\u00A0') spaceL = true; }
-            const s = document.createElement('strong'); s.textContent = `[${code}]`; const spaceA = document.createTextNode(' '); r.deleteContents(); r.insertNode(spaceA); r.insertNode(s); if (spaceL) s.parentNode.insertBefore(document.createTextNode(' '), s);
-            const nr = document.createRange(); nr.setStartAfter(spaceA); nr.collapse(true); sel.removeAllRanges(); sel.addRange(nr); saveDraft(); hideOverlays(); updateWordCount();
+        function performUndo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                editor.innerHTML = editorHistory[historyIndex];
+                saveDraft();
+                checkPendingCount();
+                undoBtn.disabled = historyIndex <= 0;
+            }
+        }
+
+        const copyHTMLToClipboard = async (html, textFallback) => {
+            if (navigator.clipboard && window.ClipboardItem) {
+                try {
+                    const item = new ClipboardItem({
+                        'text/html': new Blob([html], { type: 'text/html' }),
+                        'text/plain': new Blob([textFallback], { type: 'text/plain' })
+                    });
+                    await navigator.clipboard.write([item]);
+                    return true;
+                } catch (err) {}
+            }
+            copyStaging.innerHTML = html;
+            const range = document.createRange();
+            range.selectNodeContents(copyStaging);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            let ok = false;
+            try { ok = document.execCommand('copy'); } catch (err) {}
+            selection.removeAllRanges();
+            copyStaging.innerHTML = '';
+            return ok;
+        };
+
+        const getSelectedLevel = () => document.querySelector('input[name="student-level"]:checked').value;
+
+        const countCodesInHTML = (html) => {
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            const counts = {};
+            temp.querySelectorAll('strong').forEach(tag => {
+                const code = tag.textContent.replace(/^\[/, '').replace(/\]$/, '');
+                counts[code] = (counts[code] || 0) + 1;
+            });
+            return counts;
+        };
+
+        const orderedCounts = (counts) => Object.entries(counts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+        const getStudentQuickSummary = (counts) => {
+            const ordered = orderedCounts(counts);
+            if (!ordered.length) return 'Quick Summary: No feedback codes were added yet.';
+            const topThree = ordered.slice(0, 3).map(([code, count]) => `${code} (${count})`);
+            return `Quick Summary: Focus first on ${topThree.join(', ')}.`;
+        };
+
+        const getClassSummaryHTML = () => {
+            const ordered = orderedCounts(classSummaryCounts);
+            if (!ordered.length) return '<p style="margin:0;">Class Summary: No feedback has been recorded yet.</p>';
+
+            const rows = ordered.map(([code, count], index) => {
+                const category = codeData[code]?.category === 'structure' ? 'Structure' : 'Expression';
+                return `<tr>
+                    <td style="padding:8px 10px; border:1px solid #cbd5e1;">${index + 1}</td>
+                    <td style="padding:8px 10px; border:1px solid #cbd5e1;"><strong>[${code}]</strong></td>
+                    <td style="padding:8px 10px; border:1px solid #cbd5e1;">${category}</td>
+                    <td style="padding:8px 10px; border:1px solid #cbd5e1;">${count}</td>
+                </tr>`;
+            }).join('');
+
+            return `
+                <h3 style="color:#0f172a; margin:0 0 10px 0;">Class Summary</h3>
+                <p style="margin:0 0 12px 0; color:#475569;">Most common issues across the class, from most frequent to least.</p>
+                <table style="border-collapse:collapse; width:100%; font-size:0.95rem;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left; padding:8px 10px; border:1px solid #cbd5e1; background:#f8fafc;">#</th>
+                            <th style="text-align:left; padding:8px 10px; border:1px solid #cbd5e1; background:#f8fafc;">Code</th>
+                            <th style="text-align:left; padding:8px 10px; border:1px solid #cbd5e1; background:#f8fafc;">Category</th>
+                            <th style="text-align:left; padding:8px 10px; border:1px solid #cbd5e1; background:#f8fafc;">Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        };
+
+        const hideOverlays = () => {
+            if (activeTag) { activeTag.classList.remove('selected'); activeTag = null; }
+            removeCodeBtn.classList.remove('visible');
+            
+            favPopup.classList.remove('visible');
+            favPopup.classList.remove('swapping');
+            
+            clearTimeout(favPopupTimer);
+            hideTooltip();
+        };
+
+        const hideTooltip = () => {
+            clearTimeout(hoverTimer);
+            hoverTimer = null;
+            lastHoverTarget = null;
+            tooltip.style.display = 'none';
+        };
+
+        const showTooltip = (btn) => {
+            if (!tooltipsEnabled) return;
+            
+            let titleText = '';
+            let descText = '';
+            let exampleText = '';
+
+            if (btn.dataset.code) {
+                const code = btn.dataset.code;
+                const data = codeData[code];
+                if (!data) return;
+                titleText = code;
+                descText = data.explanation;
+                exampleText = data.examples?.[getSelectedLevel()] || '';
+            } else if (btn.dataset.tooltipTitle) {
+                titleText = btn.dataset.tooltipTitle;
+                descText = btn.dataset.tooltipDesc;
+            } else {
+                return;
+            }
+
+            tooltip.innerHTML = `
+                <span class="tooltip-header">${titleText}</span>
+                <div>${descText}</div>
+                ${exampleText ? `<div style="margin-top:6px; color:#cbd5e1; font-style:italic;">Example: ${exampleText}</div>` : ''}
+            `;
+            const rect = btn.getBoundingClientRect();
+            const tooltipWidth = 300; 
+            
+            let top = Math.min(window.innerHeight - 20, rect.top + rect.height / 2 - 20);
+            let left = rect.right + 12;
+
+            if (left + tooltipWidth > window.innerWidth) {
+                left = rect.left - tooltipWidth - 12;
+            }
+            
+            left = Math.max(12, left);
+
+            tooltip.style.top = `${top}px`;
+            tooltip.style.left = `${left}px`;
+            tooltip.style.display = 'block';
+        };
+
+        const attachTooltipHandlers = (btn) => {
+            const startHover = () => {
+                hideTooltip();
+                lastHoverTarget = btn;
+                hoverTimer = setTimeout(() => { if (lastHoverTarget === btn) showTooltip(btn); }, 500);
+            };
+
+            btn.addEventListener('mouseenter', startHover);
+            btn.addEventListener('focus', startHover);
+            btn.addEventListener('mouseleave', hideTooltip);
+            btn.addEventListener('blur', hideTooltip);
+            btn.addEventListener('touchstart', hideTooltip, { passive: true });
+        };
+        
+        attachTooltipHandlers(magicBtn);
+
+        function toggleFavorite(code, starElement) {
+            const index = favoriteCodes.indexOf(code);
+            if (index > -1) {
+                favoriteCodes.splice(index, 1);
+                starElement.classList.remove('active');
+                starElement.textContent = '☆';
+            } else {
+                favoriteCodes.push(code);
+                starElement.classList.add('active');
+                starElement.textContent = '★';
+            }
+            try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoriteCodes)); } catch (e) {}
+            
+            if (favPopup.classList.contains('visible')) renderFavPopup(false);
         }
 
         function renderFavPopup(isSwapping = false) {
             favPopup.innerHTML = '';
-            if (isSwapping) favPopup.classList.add('swapping'); else favPopup.classList.remove('swapping');
+            
+            if (isSwapping) {
+                favPopup.classList.add('swapping');
+            } else {
+                favPopup.classList.remove('swapping');
+            }
+
             const list = isSwapping ? Object.keys(codeData).sort((a,b) => a.localeCompare(b)) : favoriteCodes;
-            list.forEach(c => {
-                const b = document.createElement('button'); b.className = 'fav-popup-btn'; b.textContent = c;
-                b.onclick = () => {
+            
+            if (list.length === 0) {
+                favPopup.classList.remove('visible');
+                return;
+            }
+            
+            list.forEach(code => {
+                const btn = document.createElement('button');
+                btn.className = 'fav-popup-btn';
+                btn.textContent = code;
+                btn.addEventListener('mousedown', (e) => { e.preventDefault(); });
+                btn.addEventListener('click', () => {
                     if (isSwapping && swappingTag) {
-                        const s = document.createElement('strong'); s.textContent = `[${c}]`; swappingTag.replaceWith(s);
-                        classSummaryCounts[c] = (classSummaryCounts[c] || 0) + 1; saveClassSummary(); checkPendingCount();
-                    } else insertCode(c);
-                    hideOverlays(); updateWordCount();
-                };
-                favPopup.appendChild(b);
+                        swappingTag.querySelector('.pending-label').textContent = code;
+                        acceptPendingTag(swappingTag); 
+                        swappingTag = null;
+                    } else {
+                        insertCode(code);
+                    }
+                    favPopup.classList.remove('visible');
+                    favPopup.classList.remove('swapping');
+                });
+                favPopup.appendChild(btn);
             });
         }
 
-        function openSwapMenu(el, e) {
-            editor.blur(); 
-            swappingTag = el; renderFavPopup(true); favPopup.style.visibility = 'hidden'; favPopup.classList.add('visible');
-            requestAnimationFrame(() => {
-                const wr = editorWrapper.getBoundingClientRect(); const pr = favPopup.getBoundingClientRect();
-                let left = e.clientX - wr.left; if (left + pr.width > wr.width) left = wr.width - pr.width - 15;
+        function renderButtons() {
+            codesContainer1.innerHTML = '';
+            codesContainer2.innerHTML = '';
+
+            const codeKeys = Object.keys(codeData).sort((a, b) => {
+                const catA = codeData[a].category || 'expression';
+                const catB = codeData[b].category || 'expression';
+                if (catA !== catB) return catA.localeCompare(catB);
                 
-                let top = e.clientY - wr.top + 15; 
-                if (top + pr.height > wr.height - 10) { 
-                    top = e.clientY - wr.top - pr.height - 15; 
+                const isCustomA = !baseCodeData[a];
+                const isCustomB = !baseCodeData[b];
+                if (isCustomA && !isCustomB) return 1;
+                if (!isCustomA && isCustomB) return -1;
+                
+                return a.localeCompare(b);
+            });
+
+            codeKeys.forEach((code) => {
+                const btn = document.createElement('button');
+                btn.className = 'code-btn';
+                btn.dataset.code = code;
+                btn.type = 'button';
+
+                const isFav = favoriteCodes.includes(code);
+                const isCustom = !baseCodeData[code];
+                const starChar = isFav ? '★' : '☆';
+                
+                btn.innerHTML = `<span>${code}</span> <div style="display:flex; align-items:center;">
+                    ${isCustom ? `<span class="delete-icon">×</span>` : ''}
+                    <span class="star-icon ${isFav ? 'active' : ''}">${starChar}</span>
+                </div>`;
+
+                const star = btn.querySelector('.star-icon');
+                star.addEventListener('mousedown', (e) => e.preventDefault());
+                star.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleFavorite(code, star);
+                });
+
+                if (isCustom) {
+                    const delBtn = btn.querySelector('.delete-icon');
+                    
+                    delBtn.addEventListener('mouseenter', () => { hideTooltip(); });
+                    delBtn.addEventListener('mousedown', (e) => e.preventDefault());
+                    delBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        hideTooltip();
+                        
+                        btn.classList.add('is-confirming');
+                        btn.style.borderColor = 'var(--danger)';
+                        btn.style.backgroundColor = '#fef2f2';
+                        
+                        btn.innerHTML = `
+                            <span style="color: var(--danger); font-size: 0.85rem; font-weight: 700;">Delete code?</span>
+                            <div style="display:flex; gap: 14px; align-items: center; padding-right: 4px;">
+                                <span class="confirm-yes" style="color: var(--danger); font-weight: 800; cursor: pointer;">Yes</span>
+                                <span class="confirm-no" style="color: var(--text-light); font-weight: 800; cursor: pointer;">No</span>
+                            </div>
+                        `;
+
+                        btn.querySelector('.confirm-yes').addEventListener('click', (e2) => {
+                            e2.stopPropagation();
+                            delete codeData[code];
+                            const favIndex = favoriteCodes.indexOf(code);
+                            if (favIndex > -1) {
+                                favoriteCodes.splice(favIndex, 1);
+                                try { localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoriteCodes)); } catch(err) {}
+                            }
+                            saveCustomCodes();
+                            renderButtons();
+                            if (favPopup.classList.contains('visible')) renderFavPopup(false);
+                        });
+
+                        btn.querySelector('.confirm-no').addEventListener('click', (e2) => {
+                            e2.stopPropagation();
+                            renderButtons(); 
+                        });
+                    });
                 }
-                if (top < 0) top = 10; 
 
-                favPopup.style.top = `${top}px`; favPopup.style.left = `${Math.max(10, left)}px`; favPopup.style.visibility = 'visible';
+                btn.addEventListener('mousedown', (e) => {
+                    if (btn.classList.contains('is-confirming')) return;
+                    if (e.target !== star && !e.target.classList.contains('delete-icon')) e.preventDefault();
+                });
+                
+                btn.addEventListener('click', (e) => {
+                    if (btn.classList.contains('is-confirming')) return;
+                    if (e.target !== star && !e.target.classList.contains('delete-icon')) insertCode(code);
+                });
+                
+                attachTooltipHandlers(btn);
+
+                const category = codeData[code].category || 'expression';
+                if(category === 'evidence' && !evidenceMode) return;
+                
+                if (category === 'structure') {
+                    codesContainer1.appendChild(btn);
+                } else {
+                    codesContainer2.appendChild(btn);
+                }
             });
+
+            if (evidenceMode) {
+                const evidenceHint = document.createElement('div');
+                evidenceHint.style.cssText = 'margin: 2px 0 10px 0; padding: 8px 10px; border: 1px dashed #bae6fd; border-radius: 8px; background: #f0f9ff; color: #0369a1; font-size: 0.8rem; font-weight: 600;';
+                evidenceHint.textContent = 'Evidence codes are showing below.';
+                codesContainer2.prepend(evidenceHint);
+            }
         }
 
-        function runAutoMark() {
-            const text = editor.innerText.trim(); if(!text) return; magicBtn.classList.add('loading');
-            const flags = RapidEngine.analyze(text, getSelectedLevel()); let html = editor.innerHTML;
+        // SWEEPER FUNCTION: Cleans up empty ad-hoc brackets when you click away
+        function cleanupEmptyBrackets() {
+            const strongs = editor.querySelectorAll('strong');
+            let changed = false;
             
-            flags.forEach(f => {
-                // Safely escape special characters from the sentence string
-                let escaped = f.spanText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const selection = window.getSelection();
+            const activeNode = selection.rangeCount > 0 
+                ? (selection.getRangeAt(0).startContainer.nodeType === 3 ? selection.getRangeAt(0).startContainer.parentNode : selection.getRangeAt(0).startContainer) 
+                : null;
+
+            strongs.forEach(el => {
+                if (el === activeNode || el.contains(activeNode)) return; 
                 
-                // CRITICAL FIX: Convert HTML entities so innerHTML matches correctly (smart quotes, ampersands, etc.)
-                escaped = escaped.replace(/&/g, '&amp;')
-                                 .replace(/</g, '&lt;')
-                                 .replace(/>/g, '&gt;')
-                                 .replace(/"/g, '(?:"|&quot;)')
-                                 .replace(/'/g, "(?:'|&#39;|&apos;)");
+                let text = el.textContent;
                 
-                // Allow spaces or newlines to bridge across HTML tags (like <br> or <div> created by the browser)
-                const regexStr = escaped.replace(/\s+/g, '(?:\\s|&nbsp;|<[^>]+>)+');
-                
-                // Find the sentence, but ensure we don't accidentally double-tag an already flagged sentence
-                const regex = new RegExp(`(${regexStr})(?!\\s*<span class="pending-tag")`, 'i');
-                const tag = `<span class="pending-tag" contenteditable="false" data-reason="${f.reason}"><span class="pending-action pending-accept">✓</span><span class="pending-label">${f.code}</span><span class="pending-action pending-reject">✗</span></span>`;
-                
-                if (regex.test(html)) html = html.replace(regex, `$1 ${tag}`);
+                let newText = text.replace(/\s+\]$/, ']').toUpperCase(); 
+                if (newText !== text) {
+                    el.textContent = newText;
+                    changed = true;
+                }
+
+                const cleanText = el.textContent.replace(/\u00A0/g, ' ').trim();
+                if (cleanText === '[]' || cleanText === '[ ]' || cleanText === '[' || cleanText === ']') {
+                    el.remove();
+                    changed = true;
+                }
             });
-            
-            editor.innerHTML = html; magicBtn.classList.remove('loading'); checkPendingCount(); saveDraft(); updateWordCount();
+            if (changed) { saveDraft(); saveHistory(); }
+        }
+
+        function insertCode(code) {
+            if (activeTag) {
+                activeTag.textContent = `[${code}]`;
+                const selection = window.getSelection();
+                const range = document.createRange();
+                range.setStartAfter(activeTag);
+                range.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                
+                hideOverlays();
+                editor.focus();
+                saveDraft();
+                saveHistory();
+                return;
+            }
+
+            editor.focus();
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+            const range = selection.getRangeAt(0);
+            if (!editor.contains(range.commonAncestorContainer)) return;
+
+            let parentNode = range.startContainer.nodeType === 3 ? range.startContainer.parentNode : range.startContainer;
+            if (parentNode.tagName === 'STRONG' && parentNode.textContent.replace(/\u00A0/g, ' ').trim() === '[]') {
+                parentNode.textContent = `[${code}]`;
+                const newRange = document.createRange();
+                newRange.setStartAfter(parentNode);
+                newRange.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+                saveDraft();
+                saveHistory();
+                hideOverlays();
+                return;
+            }
+
+            const strongNode = document.createElement('strong');
+            strongNode.textContent = `[${code}]`;
+            const spaceNode = document.createTextNode(' ');
+
+            range.deleteContents();
+            range.insertNode(spaceNode);
+            range.insertNode(strongNode);
+
+            const newRange = document.createRange();
+            newRange.setStartAfter(spaceNode);
+            newRange.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+            saveDraft();
+            saveHistory();
+            hideOverlays();
         }
 
         function addCustomCode(inputEl, category) {
             const newCode = inputEl.value.trim().toUpperCase();
             if (!newCode) return;
-            if (codeData[newCode]) { showToast('That code already exists.'); inputEl.value = ''; return; }
-            codeData[newCode] = { category: category, explanation: 'Teacher feedback.', examples: { upper_primary: '', lower_sec: '', upper_sec: '' } };
-            saveCustomCodes(); renderButtons(); inputEl.value = ''; showToast(`Code added.`);
-        }
-
-        editor.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                e.preventDefault();
-                hideOverlays();
+            if (codeData[newCode]) {
+                showToast('That code already exists.');
+                inputEl.value = '';
                 return;
             }
-            
-            if (favPopup.classList.contains('visible') && e.key.length === 1) {
-                hideOverlays();
+
+            codeData[newCode] = {
+                category,
+                explanation: 'Teacher feedback. Review this part carefully and improve it.',
+                examples: { upper_primary: '', lower_sec: '', upper_sec: '' }
+            };
+
+            saveCustomCodes();
+            renderButtons();
+            inputEl.value = '';
+            showToast(`${category === 'structure' ? 'Structure' : 'Expression'} code added.`);
+        }
+
+        // --- 100% LOCAL AUTO MARK ENGINE ---
+        function runAutoMark() {
+            const text = editor.innerText.trim();
+            if (!text) { showToast('Paste some text first.'); return; }
+
+            if (typeof RapidEngine === 'undefined') {
+                showToast('Error: rapid-engine.js not found! Please ensure it is in the same folder.');
+                return;
             }
 
-            if ((e.key === 'Tab' || e.key === 'Enter') && !e.shiftKey) {
-                const sel = window.getSelection(); const node = sel.anchorNode; const strong = node?.parentNode?.closest('strong');
-                if (strong && editor.contains(strong)) { e.preventDefault(); strong.textContent = strong.textContent.toUpperCase(); const nr = document.createRange(); nr.setStartAfter(strong); nr.collapse(true); const sp = document.createTextNode('\u00A0'); nr.insertNode(sp); nr.setStartAfter(sp); nr.collapse(true); sel.removeAllRanges(); sel.addRange(nr); saveDraft(); updateWordCount(); return; }
-            }
-            if (e.key === '[') {
-                const sel = window.getSelection(); if (!sel.isCollapsed) return; const r = sel.getRangeAt(0);
-                if (r.startContainer.nodeType === 3 && r.startOffset > 0 && r.startContainer.textContent.charAt(r.startOffset-1) === '[') {
-                    e.preventDefault(); let space = false; if(r.startOffset > 1 && r.startContainer.textContent.charAt(r.startOffset-2).trim() !== '') space = true; r.setStart(r.startContainer, r.startOffset - 1); r.deleteContents(); const s = document.createElement('strong'); s.textContent = '[]'; r.insertNode(s); if (space) s.parentNode.insertBefore(document.createTextNode(' '), s); const nr = document.createRange(); nr.setStart(s.firstChild, 1); nr.collapse(true); sel.removeAllRanges(); sel.addRange(nr); updateWordCount();
+            magicBtn.classList.add('loading');
+            magicBtn.textContent = '⏳';
+
+            setTimeout(() => {
+                let newHTML = editor.innerHTML;
+                let countFound = 0;
+                const level = getSelectedLevel();
+
+                // Run the robust custom NLP engine locally
+                let flags = RapidEngine.analyze(text, level);
+
+                if (isNarrativeMode) {
+                    flags = flags.filter(f => f.code !== 'QUOTE NOT INTRODUCED' && !f.code.includes('EXPLAIN THE EVIDENCE'));
                 }
-            }
+
+                flags.forEach(flag => {
+                    let codeToApply = flag.code;
+                    if (codeToApply.includes('REPETITION')) codeToApply = 'REPETITION';
+                    if (codeToApply.includes('EXPLAIN THE EVIDENCE')) codeToApply = 'EXPLAIN THE EVIDENCE';
+                    if (codeToApply.includes('PROOFREADING')) codeToApply = 'PROOFREADING NEEDED';
+
+                    if (!codeData[codeToApply]) return;
+
+                    const marker = `<span class="pending-tag" contenteditable="false"><span class="pending-action pending-accept" title="Accept Suggestion">✓</span><span class="pending-label">${codeToApply}</span><span class="pending-action pending-reject" title="Reject Suggestion">✗</span></span>`;
+                    
+                    const escaped = flag.spanText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regexStr = escaped.replace(/\s+/g, '(?:\\s|&nbsp;|<[^>]+>)+');
+                    const regex = new RegExp(`(${regexStr})`, 'i');
+                    
+                    if (newHTML.match(regex)) {
+                        newHTML = newHTML.replace(regex, (match) => {
+                            let processedMatch = match;
+                            
+                            // NEW: Highlight the specific repeated words in blue
+                            if (codeToApply === 'REPETITION' && flag.evidence && flag.evidence.repeatedStems) {
+                                flag.evidence.repeatedStems.forEach(stemStr => {
+                                    if (stemStr.length >= 3) {
+                                        let parts = processedMatch.split(/(<[^>]*>)/);
+                                        for (let i = 0; i < parts.length; i++) {
+                                            if (!parts[i].startsWith('<')) {
+                                                const wordRegex = new RegExp(`\\b(${stemStr}[a-zA-Z]*)\\b`, 'gi');
+                                                parts[i] = parts[i].replace(wordRegex, '<span class="custom-highlight">$1</span>');
+                                            }
+                                        }
+                                        processedMatch = parts.join('');
+                                    }
+                                });
+                            }
+
+                            return processedMatch + ` ${marker} `;
+                        });
+                        countFound++;
+                    }
+                });
+
+                editor.innerHTML = newHTML;
+                checkPendingCount();
+
+                if (countFound > 0) {
+                    saveDraft();
+                    saveHistory();
+                    showToast(`✨ Scan Complete: Proposed ${countFound} tags.`);
+                } else {
+                    showToast('Scan Complete: No mechanical issues found.');
+                }
+
+                magicBtn.classList.remove('loading');
+                magicBtn.textContent = '✨';
+            }, 50);
+        }
+
+        // --- PENDING TAG INTERACTIONS ---
+        editor.addEventListener('click', (e) => {
+            const pendingTag = e.target.closest('.pending-tag');
+            if (!pendingTag) return;
+            if (e.target.classList.contains('pending-accept')) acceptPendingTag(pendingTag, false);
+            else if (e.target.classList.contains('pending-reject')) { pendingTag.remove(); checkPendingCount(); saveDraft(); saveHistory(); }
+            else if (e.target.classList.contains('pending-label')) openSwapMenu(pendingTag, e);
         });
 
-        // Force Plain Text on Paste to prevent tiny fonts from Word/Google Docs
-        editor.addEventListener('paste', (e) => { 
+        function acceptPendingTag(el, isBatch = false) {
+            const code = el.querySelector('.pending-label').textContent;
+            const strong = document.createElement('strong');
+            strong.textContent = `[${code}]`;
+            el.replaceWith(strong);
+            classSummaryCounts[code] = (classSummaryCounts[code] || 0) + 1;
+            checkPendingCount(); saveClassSummary(); saveDraft();
+            if (!isBatch) saveHistory();
+        }
+
+        function checkPendingCount() {
+            const count = editor.querySelectorAll('.pending-tag').length;
+            acceptAllBtn.style.display = count > 0 ? 'flex' : 'none';
+        }
+
+        acceptAllBtn.addEventListener('click', () => {
+            const pending = editor.querySelectorAll('.pending-tag');
+            pending.forEach(tag => acceptPendingTag(tag, true));
+            saveHistory();
+            showToast('Suggestions accepted.');
+        });
+
+        function openSwapMenu(el, event) {
+            swappingTag = el;
+            renderFavPopup(true);
+            
+            favPopup.style.visibility = 'hidden';
+            favPopup.classList.add('visible');
+            
+            requestAnimationFrame(() => {
+                const wr = editorWrapper.getBoundingClientRect();
+                const popupRect = favPopup.getBoundingClientRect();
+                
+                let top = event.clientY - wr.top + 15;
+                let left = event.clientX - wr.left;
+
+                if (left + popupRect.width > wr.width) {
+                    left = wr.width - popupRect.width - 20; 
+                }
+                
+                if (top + popupRect.height > wr.height) {
+                    top = event.clientY - wr.top - popupRect.height - 15;
+                }
+                if (top < 10) top = 10; 
+                
+                favPopup.style.top = `${top}px`;
+                favPopup.style.left = `${Math.max(10, left)}px`; 
+                favPopup.style.visibility = 'visible';
+            });
+        }
+
+        // --- EVENT LISTENERS ---
+        magicBtn.addEventListener('click', runAutoMark);
+
+        editor.addEventListener('paste', (e) => {
             e.preventDefault();
-            // Get the raw plain text from the clipboard, ignoring all HTML styling
-            const text = (e.originalEvent || e).clipboardData.getData('text/plain');
-            // Insert it safely at the cursor position
-            document.execCommand('insertText', false, text);
-            setTimeout(updateWordCount, 10); 
+            const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+            if (document.queryCommandSupported && document.queryCommandSupported('insertText')) {
+                document.execCommand('insertText', false, text);
+            } else {
+                const selection = window.getSelection();
+                if (!selection.rangeCount) return;
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(document.createTextNode(text));
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+            saveDraft();
+            saveHistory();
         });
 
         editor.addEventListener('mouseup', (e) => {
-            if (!e.target.closest('#favorites-popup') && !e.target.closest('.pending-tag') && !e.target.closest('#remove-code-btn')) {
+            clearTimeout(favPopupTimer);
+
+            cleanupEmptyBrackets();
+
+            if (!e.target.closest('#favorites-popup') && !e.target.closest('.pending-tag')) {
                 favPopup.classList.remove('visible');
+                favPopup.classList.remove('swapping');
             }
             
             if (e.target.tagName === 'STRONG') { 
-                editor.blur(); 
-                if (activeTag) activeTag.classList.remove('selected');
                 activeTag = e.target; 
                 activeTag.classList.add('selected'); 
-                const tr = activeTag.getBoundingClientRect(), wr = editorWrapper.getBoundingClientRect(); 
+                const tr = activeTag.getBoundingClientRect(); 
+                const wr = editorWrapper.getBoundingClientRect(); 
                 removeCodeBtn.style.top = `${tr.top - wr.top}px`; 
                 removeCodeBtn.style.left = `${tr.left - wr.left + (tr.width / 2)}px`; 
                 removeCodeBtn.classList.add('visible'); 
-                favPopup.classList.remove('visible'); 
+                return; 
+            }
+            
+            removeCodeBtn.classList.remove('visible');
+            
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+
+            // --- AD-HOC HIGHLIGHT WORKFLOW ---
+            if (!selection.isCollapsed && selection.toString().trim() !== '') {
+                if (e.target.closest('.custom-highlight') || e.target.closest('.pending-tag') || e.target.closest('strong')) return;
+
+                const range = selection.getRangeAt(0);
+                
+                const highlightSpan = document.createElement('span');
+                highlightSpan.className = 'custom-highlight';
+                highlightSpan.appendChild(range.extractContents());
+                range.insertNode(highlightSpan);
+
+                const bracketNode = document.createElement('strong');
+                bracketNode.textContent = '[]'; 
+                
+                range.setStartAfter(highlightSpan);
+                range.collapse(true);
+                
+                const spaceNode = document.createTextNode(' ');
+                range.insertNode(spaceNode);
+                range.insertNode(bracketNode);
+
+                const newRange = document.createRange();
+                newRange.setStart(bracketNode.childNodes[0], 1); 
+                newRange.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+
+                saveDraft();
+                saveHistory();
                 return; 
             }
 
-            if (!e.target.closest('#remove-code-btn')) {
-                if (activeTag) activeTag.classList.remove('selected');
-                activeTag = null;
-                removeCodeBtn.classList.remove('visible');
-            }
+            // --- STANDARD FAVOURITES WORKFLOW ---
+            if (selection.isCollapsed && favoritesEnabled && favoriteCodes.length > 0 && !e.target.closest('.pending-tag')) {
+                favPopupTimer = setTimeout(() => {
+                    if (editor.textContent.trim() === '') return;
+                    
+                    renderFavPopup(false);
+                    favPopup.style.visibility = 'hidden';
+                    favPopup.classList.add('visible');
 
-            if (favoritesEnabled && favoriteCodes.length > 0 && !e.target.closest('.pending-tag') && editor.textContent.trim() !== '') {
-                renderFavPopup(); 
-                favPopup.style.visibility = 'hidden'; 
-                favPopup.classList.add('visible'); 
-                requestAnimationFrame(() => { 
-                    const wr = editorWrapper.getBoundingClientRect(), pr = favPopup.getBoundingClientRect(); 
-                    let t = e.clientY - wr.top + 15, l = e.clientX - wr.left; 
-                    
-                    if (l + pr.width > wr.width) l = wr.width - pr.width - 20; 
-                    if (t + pr.height > wr.height - 10) t = e.clientY - wr.top - pr.height - 15;
-                    if (t < 0) t = 10;
-                    
-                    favPopup.style.top = `${t}px`; favPopup.style.left = `${Math.max(10, l)}px`; favPopup.style.visibility = 'visible'; 
-                }); 
-            } else {
-                favPopup.classList.remove('visible');
+                    requestAnimationFrame(() => {
+                        const wr = editorWrapper.getBoundingClientRect();
+                        const popupRect = favPopup.getBoundingClientRect();
+                        let top = e.clientY - wr.top + 15; 
+                        let left = e.clientX - wr.left;
+                        
+                        if (left + popupRect.width > wr.width) left = wr.width - popupRect.width - 20;
+                        
+                        if (top + popupRect.height > wr.height) {
+                            top = e.clientY - wr.top - popupRect.height - 15;
+                        }
+                        if (top < 10) top = 10;
+                        
+                        favPopup.style.top = `${top}px`;
+                        favPopup.style.left = `${Math.max(10, left)}px`;
+                        favPopup.style.visibility = 'visible';
+                    });
+                }, 500);
             }
         });
 
-        removeCodeBtn.onclick = (e) => {
-            e.stopPropagation();
-            if (activeTag) { activeTag.remove(); activeTag = null; removeCodeBtn.classList.remove('visible'); editor.focus(); saveDraft(); updateWordCount(); }
-        };
+        editor.addEventListener('blur', () => {
+            cleanupEmptyBrackets(); 
+        });
 
-        editor.onclick = (e) => {
-            const p = e.target.closest('.pending-tag'); if (!p) return;
-            editor.blur(); 
-            if (e.target.classList.contains('pending-accept')) { const s = document.createElement('strong'); s.textContent = `[${p.querySelector('.pending-label').textContent}]`; p.replaceWith(s); classSummaryCounts[p.querySelector('.pending-label').textContent] = (classSummaryCounts[p.querySelector('.pending-label').textContent] || 0) + 1; saveClassSummary(); checkPendingCount(); saveDraft(); updateWordCount(); }
-            else if (e.target.classList.contains('pending-reject')) { p.remove(); checkPendingCount(); saveDraft(); updateWordCount(); }
-            else if (e.target.classList.contains('pending-label')) openSwapMenu(p, e);
-        };
-
-        function checkPendingCount() { const c = editor.querySelectorAll('.pending-tag').length; acceptAllBtn.style.display = c > 0 ? 'flex' : 'none'; }
-        function saveClassSummary() { localStorage.setItem(CLASS_SUMMARY_KEY, JSON.stringify(classSummaryCounts)); }
-        function saveCustomCodes() { const c = {}; Object.keys(codeData).forEach(k => { if(!baseCodeData[k]) c[k] = codeData[k]; }); localStorage.setItem(CUSTOM_STORAGE_KEY, JSON.stringify(c)); }
-        function toggleFavorite(c, s) { const i = favoriteCodes.indexOf(c); if(i>-1) { favoriteCodes.splice(i,1); s.classList.remove('active'); s.textContent='☆'; } else { favoriteCodes.push(c); s.classList.add('active'); s.textContent='★'; } localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoriteCodes)); }
-
-        magicBtn.onclick = runAutoMark;
-        scanTipsToggle.onchange = (e) => { scanTipsEnabled = e.target.checked; localStorage.setItem(SCAN_TIPS_PREF_KEY, JSON.stringify(scanTipsEnabled)); };
-        favoritesToggle.onchange = (e) => { favoritesEnabled = e.target.checked; localStorage.setItem(FAV_TOGGLE_PREF_KEY, JSON.stringify(favoritesEnabled)); };
-        tooltipToggle.onchange = (e) => { tooltipsEnabled = e.target.checked; localStorage.setItem(TOOLTIP_PREF_KEY, JSON.stringify(tooltipsEnabled)); if (!tooltipsEnabled) hideTooltip(); };
-        
-        clearBtn.onclick = () => { if(editor.innerText.trim()) { lastClearedContent = editor.innerHTML; editor.innerHTML = ''; undoBtn.style.display = 'inline-flex'; saveDraft(); updateWordCount(); } };
-        undoBtn.onclick = () => { editor.innerHTML = lastClearedContent; undoBtn.style.display = 'none'; saveDraft(); updateWordCount(); };
-        evidenceModeBtn.onclick = () => { evidenceMode = !evidenceMode; evidenceModeBtn.textContent = `Evidence Mode: ${evidenceMode ? 'ON' : 'OFF'}`; renderButtons(); };
-        
-        addCodeBtn1.onclick = () => addCustomCode(newCodeInput1, 'structure');
-        addCodeBtn2.onclick = () => addCustomCode(newCodeInput2, 'expression');
-        
-        acceptAllBtn.onclick = () => { editor.querySelectorAll('.pending-tag').forEach(p => { const code = p.querySelector('.pending-label').textContent; const s = document.createElement('strong'); s.textContent = `[${code}]`; p.replaceWith(s); classSummaryCounts[code] = (classSummaryCounts[code] || 0) + 1; }); saveClassSummary(); checkPendingCount(); saveDraft(); updateWordCount(); };
-
-        // --- REPORT LOGIC RESTORED & ENHANCED ---
-        function copyTextToClipboard(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.style.position = 'absolute';
-            textarea.style.left = '-9999px';
-            document.body.appendChild(textarea);
-            textarea.select();
-            try { document.execCommand('copy'); } catch (err) { console.error('Fallback copy failed', err); }
-            document.body.removeChild(textarea);
-        }
-
-        function copyRichTextToClipboard(plainText, html) {
-            const div = document.createElement('div');
-            div.innerHTML = html;
-            div.style.position = 'absolute';
-            div.style.left = '-9999px';
-            document.body.appendChild(div);
+        editor.addEventListener('input', () => {
+            hideOverlays();
             
+            // --- [[ TRIGGER LOGIC ---
             const selection = window.getSelection();
-            const range = document.createRange();
-            range.selectNodeContents(div);
-            selection.removeAllRanges();
-            selection.addRange(range);
-            
-            let success = false;
-            try { success = document.execCommand('copy'); } catch (err) { console.error('Copy failed', err); }
-            
-            selection.removeAllRanges();
-            document.body.removeChild(div);
-            
-            // Fallback for plain text if rich text fails
-            if (!success) copyTextToClipboard(plainText);
-        }
-
-        copyBtn.onclick = () => {
-            const rawText = editor.innerText.trim();
-            if (!rawText) { showToast("Nothing to copy!"); return; }
-
-            const regex = /\[(.*?)\]/g;
-            let match;
-            const foundCodes = new Set();
-            while ((match = regex.exec(rawText)) !== null) {
-                foundCodes.add(match[1]);
-            }
-
-            let plainReport = rawText + "\n\n";
-            
-            // Format HTML version properly with bolded codes
-            let htmlText = rawText
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/\n/g, '<br>')
-                .replace(/\[(.*?)\]/g, '<strong>[$1]</strong>');
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                const node = range.startContainer;
                 
-            let htmlReport = `<div style="font-family: system-ui, -apple-system, sans-serif; font-size: 11pt; color: #334155; line-height: 1.6;">${htmlText}<br><br>`;
-            
-            if (foundCodes.size > 0) {
-                plainReport += "--- FEEDBACK KEY ---\n";
-                htmlReport += `<div style="border-top: 2px solid #cbd5e1; margin: 12px 0; padding-top: 12px;"><strong style="color: #0f172a; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.05em;">Feedback Key</strong></div>`;
-                
-                const level = getSelectedLevel();
-                
-                foundCodes.forEach(code => {
-                    const data = codeData[code];
-                    if (data) {
-                        const example = data.examples && data.examples[level] ? data.examples[level] : '';
+                if (node.nodeType === 3) {
+                    const textBeforeCursor = node.textContent.slice(0, range.startOffset);
+                    if (textBeforeCursor.endsWith('[[')) {
+                        const deleteRange = document.createRange();
+                        deleteRange.setStart(node, Math.max(0, range.startOffset - 2));
+                        deleteRange.setEnd(node, range.startOffset);
+                        deleteRange.deleteContents();
                         
-                        // Plain Text Formatting
-                        plainReport += `[${code}] - ${data.explanation}`;
-                        if (example) plainReport += ` (Ex: ${example})`;
-                        plainReport += `\n`;
+                        const strongNode = document.createElement('strong');
+                        strongNode.textContent = '[]';
+                        const spaceNode = document.createTextNode(' ');
                         
-                        // HTML Rich Text Formatting (Highly Condensed)
-                        htmlReport += `<div style="margin-bottom: 6px;">`;
-                        htmlReport += `<strong>[${code}]</strong> &ndash; ${data.explanation}`;
-                        if (example) {
-                            htmlReport += ` <span style="color: #64748b; font-style: italic;">(e.g., ${example})</span>`;
+                        deleteRange.insertNode(spaceNode);
+                        deleteRange.insertNode(strongNode);
+                        
+                        const cursorRange = document.createRange();
+                        cursorRange.setStart(strongNode.childNodes[0], 1);
+                        cursorRange.collapse(true);
+                        selection.removeAllRanges();
+                        selection.addRange(cursorRange);
+                        
+                        if (favoritesEnabled && favoriteCodes.length > 0) {
+                            renderFavPopup(false);
+                            favPopup.style.visibility = 'hidden';
+                            favPopup.classList.add('visible');
+                            
+                            requestAnimationFrame(() => {
+                                const wr = editorWrapper.getBoundingClientRect();
+                                const popupRect = favPopup.getBoundingClientRect();
+                                const strongRect = strongNode.getBoundingClientRect();
+                                
+                                let top = strongRect.bottom - wr.top + 5;
+                                let left = strongRect.left - wr.left;
+                                
+                                if (left + popupRect.width > wr.width) left = wr.width - popupRect.width - 20;
+                                
+                                if (top + popupRect.height > wr.height) {
+                                    top = strongRect.top - wr.top - popupRect.height - 5;
+                                }
+                                if (top < 10) top = 10;
+                                
+                                favPopup.style.top = `${top}px`;
+                                favPopup.style.left = `${Math.max(10, left)}px`;
+                                favPopup.style.visibility = 'visible';
+                            });
                         }
-                        htmlReport += `</div>`;
+                        
+                        saveDraft();
+                        saveHistory();
+                        return; 
                     }
-                });
+                }
             }
-            
-            htmlReport += `</div>`;
 
-            copyRichTextToClipboard(plainReport, htmlReport);
-            showToast("Feedback copied to clipboard!");
-        };
+            saveDraft();
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(saveHistory, 1000); 
+        });
 
-        classSummaryBtn.onclick = () => {
-            if (Object.keys(classSummaryCounts).length === 0) {
-                modalBodyContent.innerHTML = '<p style="color: var(--text-light); text-align: center; padding: 20px;">No feedback codes have been confirmed yet.</p>';
-            } else {
-                let html = '<table class="summary-table">';
-                html += '<tr><th>Code</th><th>Count</th></tr>';
-                const sortedCodes = Object.keys(classSummaryCounts).sort((a, b) => classSummaryCounts[b] - classSummaryCounts[a]);
-                sortedCodes.forEach(code => {
-                    html += `<tr><td class="summary-code-name">${code}</td><td style="font-weight:600; color:var(--text);">${classSummaryCounts[code]}</td></tr>`;
-                });
-                html += '</table>';
-                modalBodyContent.innerHTML = html;
+        editor.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                performUndo();
             }
-            summaryModal.classList.add('visible');
-        };
+        });
 
-        closeModalBtn.onclick = () => summaryModal.classList.remove('visible');
+        editor.addEventListener('scroll', () => { hideOverlays(); });
+        window.addEventListener('resize', hideTooltip);
+        window.addEventListener('scroll', hideTooltip, true);
 
-        copyOnlyBtn.onclick = () => {
-            if (Object.keys(classSummaryCounts).length === 0) { showToast('Nothing to copy.'); return; }
-            let text = "Class Feedback Summary:\n\n";
-            Object.keys(classSummaryCounts).sort((a,b) => classSummaryCounts[b]-classSummaryCounts[a]).forEach(c => {
-                text += `${classSummaryCounts[c]}x - ${c}\n`;
-            });
-            copyTextToClipboard(text);
-            showToast('Summary copied!');
-        };
+        removeCodeBtn.addEventListener('click', () => {
+            if (activeTag) { activeTag.remove(); activeTag = null; removeCodeBtn.classList.remove('visible'); editor.focus(); saveDraft(); saveHistory(); }
+        });
 
-        copyResetBtn.onclick = () => {
-            copyOnlyBtn.click();
-            classSummaryCounts = {};
+        addCodeBtn1.addEventListener('click', () => addCustomCode(newCodeInput1, 'structure'));
+        addCodeBtn2.addEventListener('click', () => addCustomCode(newCodeInput2, 'expression'));
+        newCodeInput1.addEventListener('keypress', (e) => { if (e.key === 'Enter') addCodeBtn1.click(); });
+        newCodeInput2.addEventListener('keypress', (e) => { if (e.key === 'Enter') addCodeBtn2.click(); });
+
+        clearBtn.addEventListener('click', () => {
+            if (editor.innerHTML.trim() !== '') { 
+                editor.innerHTML = ''; 
+                hideOverlays(); 
+                saveDraft(); 
+                acceptAllBtn.style.display='none'; 
+                saveHistory(); 
+            }
+        });
+
+        undoBtn.addEventListener('click', performUndo);
+
+        copyBtn.addEventListener('click', async () => {
+            const selectedLevel = getSelectedLevel();
+            copyStaging.innerHTML = editor.innerHTML;
+            const currentCounts = countCodesInHTML(editor.innerHTML);
+            const ordered = orderedCounts(currentCounts);
+
+            let summaryHTML = '';
+            if (ordered.length) {
+                const quickSummaryText = getStudentQuickSummary(currentCounts);
+                const bulletLines = ordered.slice(0, 5).map(([code, count]) => `<li style="margin-bottom:6px;"><strong>[${code}]</strong> — ${count} time${count === 1 ? '' : 's'}</li>`).join('');
+                summaryHTML = `
+                    <hr style="border:0; border-top:2px solid #cbd5e1; margin: 20px 0;">
+                    <h3 style="color:#0f172a; margin-bottom: 10px;">Quick Summary</h3>
+                    <p style="margin:0 0 10px 0;">${quickSummaryText}</p>
+                    <ul style="padding-left: 20px; line-height: 1.6; margin: 0 0 8px 0;">${bulletLines}</ul>
+                `;
+            }
+
+            let legendHTML = '';
+            if (ordered.length) {
+                legendHTML = '<h3 style="color:#0f172a; margin: 18px 0 12px 0;">Feedback Legend & Examples</h3><ul style="padding-left: 20px; line-height: 1.6;">';
+                ordered.forEach(([code]) => {
+                    const data = codeData[code];
+                    if (!data) return;
+                    const exampleText = data.examples[selectedLevel];
+                    const exampleHTML = exampleText ? `<br><em style="color:#64748b; font-size: 0.95em;">Example: ${exampleText}</em>` : '';
+                    legendHTML += `<li style="margin-bottom: 12px;"><strong>[${code}]</strong>: ${data.explanation}${exampleHTML}</li>`;
+                });
+                legendHTML += '</ul>';
+            }
+
+            copyStaging.innerHTML += summaryHTML + legendHTML;
+
+            ordered.forEach(([code, count]) => { classSummaryCounts[code] = (classSummaryCounts[code] || 0) + count; });
             saveClassSummary();
-            summaryModal.classList.remove('visible');
-            setTimeout(() => showToast('Summary copied and reset!'), 500);
-        };
 
-        // --- FACULTY SYNC (SPREADSHEET MODULE) ---
-        facultySyncBtn.onclick = () => facultyModal.classList.add('visible');
-        closeFacultyModalBtn.onclick = () => facultyModal.classList.remove('visible');
+            const ok = await copyHTMLToClipboard(copyStaging.innerHTML, copyStaging.innerText);
+            copyStaging.innerHTML = '';
+            showToast(ok ? (ordered.length ? 'Feedback, quick summary and legend copied.' : 'Text copied.') : 'Copy failed on this device.');
+            hideOverlays();
+        });
 
-        downloadCsvBtn.onclick = () => {
-            const headers = ["CODE", "CATEGORY", "EXPLANATION", "EX_UPPER_PRIMARY", "EX_LOWER_SEC", "EX_UPPER_SEC"];
-            const sampleRow = ['USE EVIDENCE', 'evidence', 'Back up your claim with specific proof from the text.', 'Show where this happens.', 'Include a relevant quote.', 'Integrate textual evidence smoothly.'];
-            
-            let csvContent = headers.join(",") + "\n" + sampleRow.map(s => `"${s.replace(/"/g, '""')}"`).join(",");
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", "rapid_mark_faculty_template.csv");
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        };
+        evidenceModeBtn.addEventListener('click', () => {
+            evidenceMode = !evidenceMode;
+            evidenceModeBtn.textContent = evidenceMode ? 'Evidence Mode: ON' : 'Evidence Mode: OFF';
+            showToast(evidenceMode ? 'Evidence codes are now visible.' : 'Evidence codes are now hidden.');
+            renderButtons();
+        });
 
-        uploadCsvTrigger.onclick = () => csvUploadInput.click();
+        modeBtn.addEventListener('click', () => {
+            isNarrativeMode = !isNarrativeMode;
+            modeBtn.textContent = isNarrativeMode ? 'Mode: Narrative' : 'Mode: Analytical';
+            showToast(isNarrativeMode ? 'Switched to Narrative marking rules.' : 'Switched to Analytical marking rules.');
+        });
 
-        function parseCSVRow(str) {
-            let arr = []; let quote = false; let val = '';
-            for (let i = 0; i < str.length; i++) {
-                let cc = str[i], nc = str[i+1];
-                if (cc === '"' && quote && nc === '"') { val += '"'; i++; continue; }
-                if (cc === '"') { quote = !quote; continue; }
-                if (cc === ',' && !quote) { arr.push(val); val = ''; continue; }
-                val += cc;
+        // --- MODAL LOGIC ---
+        classSummaryBtn.addEventListener('click', () => {
+            hideOverlays();
+            modalBodyContent.innerHTML = getClassSummaryHTML();
+            summaryModal.classList.add('visible');
+            copyResetBtn.dataset.confirm = 'false';
+            copyResetBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg> Copy & Reset Count`;
+        });
+
+        closeModalBtn.addEventListener('click', () => { summaryModal.classList.remove('visible'); });
+        summaryModal.addEventListener('click', (e) => { if (e.target === summaryModal) summaryModal.classList.remove('visible'); });
+
+        let copyResetConfirmTimeout;
+        copyResetBtn.addEventListener('click', async () => {
+            if (copyResetBtn.dataset.confirm === 'true') {
+                const html = getClassSummaryHTML();
+                const textWrapper = document.createElement('div'); textWrapper.innerHTML = html;
+                if (await copyHTMLToClipboard(html, textWrapper.innerText)) {
+                    classSummaryCounts = {}; saveClassSummary(); showToast('Summary copied and data reset.'); summaryModal.classList.remove('visible');
+                } else showToast('Copy failed. Data not reset.');
+                copyResetBtn.dataset.confirm = 'false';
+                copyResetBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg> Copy & Reset Count`;
+            } else {
+                copyResetBtn.dataset.confirm = 'true'; copyResetBtn.textContent = 'Are you sure? Click to confirm';
+                clearTimeout(copyResetConfirmTimeout);
+                copyResetConfirmTimeout = setTimeout(() => {
+                    copyResetBtn.dataset.confirm = 'false';
+                    copyResetBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg> Copy & Reset Count`;
+                }, 3000);
             }
-            arr.push(val);
-            return arr;
+        });
+
+        copyOnlyBtn.addEventListener('click', async () => {
+            const html = getClassSummaryHTML();
+            const textWrapper = document.createElement('div'); textWrapper.innerHTML = html;
+            if (await copyHTMLToClipboard(html, textWrapper.innerText)) { showToast('Class summary copied.'); summaryModal.classList.remove('visible'); } 
+            else showToast('Could not copy class summary.');
+        });
+
+        favoritesToggle.addEventListener('change', (e) => {
+            favoritesEnabled = e.target.checked;
+            try { localStorage.setItem(FAV_TOGGLE_PREF_KEY, JSON.stringify(favoritesEnabled)); } catch(e) {}
+        });
+
+        if (tooltipToggle) {
+            tooltipToggle.addEventListener('change', (e) => {
+                tooltipsEnabled = e.target.checked;
+                try { localStorage.setItem(TOOLTIP_PREF_KEY, JSON.stringify(tooltipsEnabled)); } catch(e) {}
+                if (!tooltipsEnabled) hideTooltip();
+            });
         }
 
-        csvUploadInput.onchange = (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const text = event.target.result;
-                const lines = text.split(/\r?\n/);
-                if (lines.length < 2) { showToast("CSV is empty or invalid."); return; }
-
-                let newCodes = {};
-                let importedCount = 0;
-
-                for (let i = 1; i < lines.length; i++) {
-                    if (!lines[i].trim()) continue;
-                    const row = parseCSVRow(lines[i]);
-                    if (row.length < 3) continue;
-
-                    const code = row[0].trim().toUpperCase();
-                    let category = row[1].trim().toLowerCase();
-                    const explanation = row[2].trim();
-                    const pri = row[3] ? row[3].trim() : '';
-                    const low = row[4] ? row[4].trim() : '';
-                    const up = row[5] ? row[5].trim() : '';
-
-                    if (category !== 'structure' && category !== 'expression' && category !== 'evidence') category = 'expression';
-
-                    if (code && explanation) {
-                        newCodes[code] = {
-                            category: category,
-                            explanation: explanation,
-                            examples: { upper_primary: pri, lower_sec: low, upper_sec: up }
-                        };
-                        importedCount++;
-                    }
-                }
-
-                if (importedCount > 0) {
-                    // Clear old custom codes from active state
-                    Object.keys(savedCustomCodes).forEach(k => delete codeData[k]);
-                    
-                    // Apply new codes
-                    savedCustomCodes = newCodes;
-                    Object.assign(codeData, savedCustomCodes);
-                    saveCustomCodes();
-                    renderButtons();
-                    
-                    facultyModal.classList.remove('visible');
-                    showToast(`Successfully imported ${importedCount} faculty codes!`);
-                } else {
-                    showToast("No valid codes found in CSV.");
-                }
-                csvUploadInput.value = ""; // Reset input
-            };
-            reader.readAsText(file);
-        };
-        
+        if (savedDraft) { editor.innerHTML = savedDraft; checkPendingCount(); }
+        saveHistory(); 
+        updateWordCount(); 
         renderButtons();
-        if (savedDraft) { editor.innerHTML = savedDraft; updateWordCount(); }
     </script>
 </body>
 </html>
