@@ -592,7 +592,6 @@
     <div class="header">
         <h1 id="app-title">RAPID MARK</h1>
         <div class="header-actions">
-            <button class="action-btn secondary" id="evidence-mode-btn" title="Toggle evidence / source feedback codes">Evidence Mode: OFF</button>
             <div class="level-selector">
                 <input type="radio" id="lvl-primary" name="student-level" value="upper_primary">
                 <label for="lvl-primary">Upper Primary</label>
@@ -683,6 +682,13 @@
                 <div class="column-header">
                     <div class="title-row">
                         <h2>EXPRESSION</h2>
+                        <div class="toggle-wrapper">
+                            <span>Evidence</span>
+                            <label class="switch">
+                                <input type="checkbox" id="evidence-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
                     </div>
                     <p class="sidebar-subtext">Clarity, wording and proofreading</p>
                 </div>
@@ -797,6 +803,12 @@
             'VAGUE STATEMENT': { category: 'expression', explanation: 'This point is too general. Add something specific.', examples: { upper_primary: 'The book was good. ➔ The book was exciting because of the plot twists.', lower_sec: 'People think pollution is bad. ➔ Many people argue that plastic pollution harms sea life.', upper_sec: 'Society has changed a lot. ➔ Technology has significantly changed how people communicate.' } },
             'TOO MANY STOP WORDS': { category: 'expression', explanation: 'Cut filler words and weak wording so the sentence sounds stronger.', examples: { upper_primary: 'It was really very big. ➔ It was enormous.', lower_sec: 'I just think that it is basically true. ➔ I believe it is true.', upper_sec: 'In my personal opinion, it is completely evident that... ➔ It is evident that...' } },
             
+            // Restored Evidence Codes
+            'ADD EVIDENCE': { category: 'evidence', explanation: 'Support your claim with a quotation, example, or factual detail from the text or source.', examples: { upper_primary: 'Add a sentence showing where this idea appears in the text.', lower_sec: 'Include a quote or specific detail from the text.', upper_sec: 'Integrate a relevant quotation or reference from the source.' } },
+            'EXPLAIN THE EVIDENCE': { category: 'evidence', explanation: 'Do not leave the quote alone. Explain how it proves your point.', examples: { upper_primary: 'Explain how the example proves your idea.', lower_sec: 'Show how the quote supports your argument.', upper_sec: 'Analyse the evidence and connect it to your claim.' } },
+            'LINK BACK TO QUESTION': { category: 'evidence', explanation: 'Your paragraph should clearly connect back to the essay question or argument.', examples: { upper_primary: 'Remind the reader what the question is asking.', lower_sec: 'Connect this idea clearly to the task question.', upper_sec: 'Explicitly link this analysis back to your thesis.' } },
+            'QUOTE NOT INTRODUCED': { category: 'evidence', explanation: 'Introduce the quote before using it. Tell the reader who said it or where it comes from.', examples: { upper_primary: 'Explain who said the quote.', lower_sec: 'Introduce the quote with context.', upper_sec: 'Integrate the quote grammatically into your sentence.' } },
+
             // New 13 Macro "Whole Essay" Codes
             'WEAK TOPIC SENTENCES': { category: 'whole_essay', explanation: 'Paragraphs lack a clear opening point.', examples: { upper_primary: 'Your paragraph doesn’t start with a clear main idea. Make sure the first sentence tells us what the paragraph is about.', lower_sec: 'Topic sentences are unclear or weak. Each paragraph should begin with a strong controlling idea.', upper_sec: 'Topic sentences lack clarity or authority. Ensure each paragraph is anchored by a precise and purposeful claim.' } },
             'WEAK DEVELOPMENT': { category: 'whole_essay', explanation: 'Ideas need further expansion and detail.', examples: { upper_primary: 'You have some good ideas, but you need to explain them more. Tell the reader more about your thinking.', lower_sec: 'Ideas are introduced but not fully developed. Expand your explanations to show how your evidence supports your argument.', upper_sec: 'Paragraphs lack depth of development. Extend analysis to demonstrate clear logical progression and insight.' } },
@@ -860,7 +872,7 @@
         const favPopup = document.getElementById('favorites-popup');
         const tooltip = document.getElementById('tooltip');
         
-        const evidenceModeBtn = document.getElementById('evidence-mode-btn');
+        const evidenceToggle = document.getElementById('evidence-toggle');
         const classSummaryBtn = document.getElementById('class-summary-btn');
         const openAdminBtn = document.getElementById('open-admin-btn');
         const closeAdminBtn = document.getElementById('close-admin-btn');
@@ -895,6 +907,7 @@
 
         favoritesToggle.checked = favoritesEnabled;
         wecToggle.checked = false;
+        if (evidenceToggle) evidenceToggle.checked = false;
         
         if (tooltipToggle) tooltipToggle.checked = tooltipsEnabled;
         if (wecTooltipToggle) wecTooltipToggle.checked = tooltipsEnabled;
@@ -1749,12 +1762,13 @@
             hideOverlays();
         });
 
-        evidenceModeBtn.addEventListener('click', () => {
-            evidenceMode = !evidenceMode;
-            evidenceModeBtn.textContent = evidenceMode ? 'Evidence Mode: ON' : 'Evidence Mode: OFF';
-            showToast(evidenceMode ? 'Evidence codes are now visible.' : 'Evidence codes are now hidden.');
-            renderButtons();
-        });
+        if (evidenceToggle) {
+            evidenceToggle.addEventListener('change', (e) => {
+                evidenceMode = e.target.checked;
+                showToast(evidenceMode ? 'Evidence codes are now visible.' : 'Evidence codes are now hidden.');
+                renderButtons();
+            });
+        }
 
         openAdminBtn.addEventListener('click', () => {
             hideOverlays();
