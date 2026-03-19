@@ -1985,7 +1985,8 @@
                 let row = uploadedCSVRows[i];
                 if(row.length < 2 || !row[1]) continue; 
                 
-                let cat = (row[0] || '').trim().toLowerCase();
+                // FIX: Replace spaces with underscores to catch "whole essay" from the CSV
+                let cat = (row[0] || '').trim().toLowerCase().replace(/\s+/g, '_');
                 if(cat === 'whole_ess' || cat === 'macro' || cat === 'essay') cat = 'whole_essay';
                 if(!['structure', 'expression', 'evidence', 'whole_essay'].includes(cat)) cat = 'expression';
                 
