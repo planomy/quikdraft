@@ -2250,15 +2250,13 @@
             });
         });
      document.getElementById("send-btn").addEventListener("click", async () => {
-    alert("CLICKED");
+    alert("ENGINE LOADED = " + typeof window.QuikDraftSend);
 
     const feedback = editor.innerText;
     const row = window.currentRow || 2;
 
-    alert("ROW = " + row);
-
     try {
-        await QuikDraftSend.send(row, feedback);
+        await window.QuikDraftSend.send(row, feedback);
         alert("AFTER SEND");
         showToast("Sent to student");
     } catch (err) {
