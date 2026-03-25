@@ -313,3 +313,41 @@ const RapidEngine = (function() {
         }
     };
 })();
+/* ==========================================
+   QUIKDRAFT SEND MODULE
+   ========================================== */
+
+const QuikDraftSend = (function() {
+    const WEB_APP_URL = 'PASTE_YOUR_WEB_APP_URL_HERE';
+
+    async function sendFeedback(row, feedback) {
+        if (!row || Number(row) < 2) {
+            throw new Error('Missing valid sheet row.');
+        }
+
+        if (!feedback || !String(feedback).trim()) {
+            throw new Error('Missing feedback text.');
+        }
+
+        await fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({
+                action: 'sendFeedback',
+                row: Number(row),
+                feedback: String(feedback)
+            })
+        });
+
+        return {
+            ok: true,
+            message: 'Sent to Apps Script'
+        };
+    }
+
+    return {
+        send: sendFeedback
+    };
+})();
+
+window.QuikDraftSend = QuikDraftSend;
