@@ -2250,12 +2250,7 @@
             });
         });
         document.getElementById("send-btn").addEventListener("click", async () => {
-    const feedback = editor.innerText;   // already exists in your file
-    const row = window.currentRow || 2;  // TEMP fallback
-
-    await QuikDraftSend.send(row, feedback);
-
-    showToast("Sent to student");
+    alert("CLICKED");
 });
 
     </script>
