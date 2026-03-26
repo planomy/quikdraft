@@ -1004,10 +1004,7 @@
         editor.innerText = data.essay || "";
         saveDraft();
         updateWordCount();
-        showToast("Loaded row " + data.row);
-    } catch (err) {
-        console.error("FETCH failed:", err);
-        alert("Could not fetch next submission.");
+        
     }
 }
         
@@ -2281,17 +2278,17 @@
             });
         });
      document.getElementById("send-btn").addEventListener("click", async () => {
-    alert("ENGINE LOADED = " + typeof window.QuikDraftSend);
+    
 
     const feedback = editor.innerText;
     const row = window.currentRow || 2;
 
     try {
         await window.QuikDraftSend.send(row, feedback);
-        alert("AFTER SEND");
+        
         showToast("Sent to student");
     } catch (err) {
-        alert("SEND ERROR: " + err.message);
+       
     }
 });
    // ===== TEMP: SET CURRENT ROW MANUALLY =====
