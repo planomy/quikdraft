@@ -2263,7 +2263,14 @@
         alert("SEND ERROR: " + err.message);
     }
 });
-   
+   // ===== TEMP: SET CURRENT ROW MANUALLY =====
+window.currentRow = 2;
+
+// OPTIONAL: quick test buttons
+function setRow(rowNumber) {
+    window.currentRow = rowNumber;
+    showToast("Row set to " + rowNumber);
+}
     </script>
      <script src="rapid-engine.js"></script>
 </body>
