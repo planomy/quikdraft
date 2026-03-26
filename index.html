@@ -985,6 +985,11 @@
         const expandBtnStructure = document.getElementById('expand-btn-structure');
         const expandBtnExpression = document.getElementById('expand-btn-expression');
         const wordCountDisplay = document.getElementById('word-count-display');
+
+        const studentMeta = document.getElementById('student-meta');
+const studentName = document.getElementById('student-name');
+const studentTask = document.getElementById('student-task');
+        
         const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJb78J32JWG8AhuO1psRgt7TA7B5Z_oXccrAZUKpq2TZw60yZbaXrtBAvUejy_iC8otQ/exec";
         
         async function fetchNextSubmission() {
@@ -1007,9 +1012,14 @@
         }
 
         window.currentRow = data.row;
-        editor.innerText = data.essay || "";
-        saveDraft();
-        updateWordCount();
+editor.innerText = data.essay || "";
+
+if (studentName) studentName.textContent = "Name: " + (data.name || "");
+if (studentTask) studentTask.textContent = "Task: " + (data.task || "");
+if (studentMeta) studentMeta.style.display = "block";
+
+saveDraft();
+updateWordCount();
     } catch (err) {
         console.error("FETCH failed:", err);
         showToast("Fetch failed");
