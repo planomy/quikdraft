@@ -276,7 +276,7 @@ const RapidEngine = (function() {
             sentenceIndex: sentence.id,
             spanText: sentence.trimmed,
             reason,
-            evidence // Vital for the Teacher Dashboard UI
+            evidence
         };
     }
 
@@ -302,7 +302,6 @@ const RapidEngine = (function() {
                 flags.push(...results);
             });
 
-            // Deduplicate logic
             const seen = new Set();
             return flags.filter(f => {
                 const key = `${f.code}::${f.sentenceIndex}`;
@@ -313,36 +312,54 @@ const RapidEngine = (function() {
         }
     };
 })();
+
 /* ==========================================
    QUIKDRAFT SEND MODULE
    ========================================== */
 
-const QuikDraftSend = (function() {
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwJtEWX4io8HAMgYfMaJZ-RlJ6xsUnDWHRM3nQt86bB6iJdmMgflmMSi5IpLDPnepsa3w/exec';
 
-    async function sendFeedback(row, feedback) {
+const QuikDraftSend = (function() {
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw1DuwokbFs5Dl-v21gTSjxWJ6Z11eQpYgD6f5VxFp6oMKlfUdM_6-COxKkEdHhLbb-uQ/exec';
+
+    async function sendFeedback(row, feedbackText, feedbackHtml) {
         if (!row || Number(row) < 2) {
             throw new Error('Missing valid sheet row.');
         }
 
-        if (!feedback || !String(feedback).trim()) {
+        const text = feedbackText != null ? String(feedbackText) : '';
+        const html = feedbackHtml != null ? String(feedbackHtml) : '';
+
+        if (!text.trim() && !html.trim()) {
             throw new Error('Missing feedback text.');
         }
 
-        await fetch(WEB_APP_URL, {
+        const response = await fetch(WEB_APP_URL, {
             method: 'POST',
-            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8'
+            },
             body: JSON.stringify({
                 action: 'sendFeedback',
                 row: Number(row),
-                feedback: String(feedback)
+                feedbackText: text,
+                feedbackHtml: html
             })
         });
 
-        return {
-            ok: true,
-            message: 'Sent to Apps Script'
-        };
+        const rawText = await response.text();
+
+        let result;
+        try {
+            result = JSON.parse(rawText);
+        } catch (err) {
+            throw new Error('Server returned non-JSON: ' + rawText);
+        }
+
+        if (!result.ok) {
+            throw new Error(result.error || 'Apps Script send failed.');
+        }
+
+        return result;
     }
 
     return {
