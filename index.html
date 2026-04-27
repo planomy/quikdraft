@@ -926,6 +926,8 @@ background: #f1f5f9;
     <div id="copy-staging"></div>
     <div id="tooltip" class="tooltip"></div>
 
+    <!-- Load before the main script so window.QuikDraftSend exists (Send uses it). -->
+    <script src="rapid-engine.js"></script>
     <script>
         // ==========================================
         // UI & STATE MANAGEMENT
@@ -2435,6 +2437,10 @@ if (overlay) overlay.style.display = 'none';
             });
         });
      document.getElementById("send-btn").addEventListener("click", async () => {
+    if (!window.QuikDraftSend || typeof window.QuikDraftSend.send !== "function") {
+        showToast("Send module missing: open this page with rapid-engine.js in the same folder (not index-only upload).");
+        return;
+    }
     const feedbackText = buildPlainTextFeedback();
     const feedbackHtml = buildEmailSafeFeedbackHTML();
     const row = window.currentRow;
@@ -2464,8 +2470,7 @@ if (overlay) overlay.style.display = 'none';
 function setRow(rowNumber) {
     window.currentRow = rowNumber;
     showToast("Row set to " + rowNumber);
-}
+    }
     </script>
-     <script src="rapid-engine.js"></script>
 </body>
 </html>
