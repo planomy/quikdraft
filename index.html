@@ -1056,16 +1056,14 @@ background: #f1f5f9;
             strongTags.forEach(tag => {
                 if (tag.textContent.trim() !== '[]') {
                     const cleanText = tag.textContent.replace(/^\[/, '').replace(/\]$/, '').trim();
-                    const b = document.createElement('b');
-                    b.textContent = cleanText;
-                    b.setAttribute(
+                    // Single <span> with color (Gmail is friendlier to this than nested <font><b>)
+                    const s = document.createElement('span');
+                    s.textContent = cleanText;
+                    s.setAttribute(
                         'style',
                         'color:#0284c7 !important;font-weight:800 !important;text-transform:uppercase !important;'
                     );
-                    const font = document.createElement('font');
-                    font.setAttribute('color', '#0284c7');
-                    font.appendChild(b);
-                    tag.parentNode.replaceChild(font, tag);
+                    tag.parentNode.replaceChild(s, tag);
                 } else {
                     tag.remove();
                 }
