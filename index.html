@@ -348,6 +348,47 @@
             min-height: 0;
         }
 
+        .word-count-bar {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 10px 24px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .word-count-bar #word-count-display {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+    
+        #student-focus-box {
+            display: none;
+            margin-top: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+background: #f1f5f9;
+            color: #1c1917;
+            font-size: 0.88rem;
+            font-weight: 600;
+            line-height: 1.45;
+            box-shadow: 0 2px 8px rgba(180, 83, 9, 0.15);
+        }
+        #student-focus-box::before {
+            content: "Student concerns / focus";
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #92400e;
+            margin-bottom: 6px;
+        }
+
         #editor {
             flex-grow: 1;
             min-height: 320px;
@@ -361,8 +402,7 @@
             outline: none;
             white-space: pre-wrap;
             word-wrap: break-word;
-            border-top-left-radius: 11px; 
-            border-top-right-radius: 11px;
+            border-radius: 0 0 11px 11px;
         }
         /* Strip weird fonts/sizes from any rich paste that slips through */
         #editor *:not(strong):not(.custom-highlight) {
@@ -740,12 +780,16 @@
                 <div id="student-meta" style="display:none; padding: 14px 18px; background: #f8fafc; border-bottom: 1px solid var(--border);">
     <div id="student-name" style="font-size: 0.9rem; font-weight: 800; color: #0f172a; margin-bottom: 4px;">Name: </div>
     <div id="student-task" style="font-size: 0.85rem; font-weight: 600; color: var(--text-light);">Task: </div>
+    <div id="student-focus-box" role="note" aria-label="Student concerns and grading focus"></div>
 </div>
+                <div class="word-count-bar" aria-live="polite">
+                    <div id="word-count-display">0 words</div>
+                </div>
                 <div id="editor" contenteditable="true" data-placeholder="1. Paste student text here.&#10;2. Double-click or drag text to highlight it and type an inline comment.&#10;3. Single-click to select a rubric code from the Favourites menu."></div>
 
                 <button class="floating-remove-btn" id="remove-code-btn">Remove</button>
 
-                <div class="editor-footer" style="position: relative;">
+                <div class="editor-footer">
                     <div class="footer-group">
                         <button class="action-btn secondary" id="clear-btn">Clear Text</button>
                         <button class="action-btn secondary" id="undo-btn" disabled title="Undo (Ctrl+Z)">
@@ -753,7 +797,6 @@
                             Undo
                         </button>
                     </div>
-                    <div id="word-count-display" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 0.85rem; color: var(--text-light); font-weight: 700; white-space: nowrap;">0 words</div>
                     <div class="footer-group">
                         <button class="action-btn" id="copy-btn">Copy Feedback</button>
                         <button class="action-btn success" id="send-btn">Send</button>
@@ -994,6 +1037,53 @@
         const newCodeInput1 = document.getElementById('new-code-input-1');
         const newCodeInput2 = document.getElementById('new-code-input-2');
         const copyStaging = document.getElementById('copy-staging');
+
+        function buildPlainTextFeedback() {
+            if (!editor) return '';
+            return editor.innerText;
+        }
+
+        /**
+         * Email-safe HTML from the editor: <strong> codes → blue uppercase spans; .custom-highlight preserved for paste/email.
+         * @param {HTMLElement} [sourceElement] Optional element to read innerHTML from (e.g. a clone for Copy). Defaults to editor.
+         * @returns {string}
+         */
+        function buildEmailSafeFeedbackHTML(sourceElement) {
+            const root = document.createElement('div');
+            root.innerHTML = (sourceElement || editor).innerHTML;
+
+            const strongTags = Array.from(root.querySelectorAll('strong'));
+            strongTags.forEach(tag => {
+                if (tag.textContent.trim() !== '[]') {
+                    const cleanText = tag.textContent.replace(/^\[/, '').replace(/\]$/, '').trim();
+                    const b = document.createElement('b');
+                    b.textContent = cleanText;
+                    b.setAttribute(
+                        'style',
+                        'color:#0284c7 !important;font-weight:800 !important;text-transform:uppercase !important;'
+                    );
+                    const font = document.createElement('font');
+                    font.setAttribute('color', '#0284c7');
+                    font.appendChild(b);
+                    tag.parentNode.replaceChild(font, tag);
+                } else {
+                    tag.remove();
+                }
+            });
+
+            const highlightSpans = Array.from(root.querySelectorAll('.custom-highlight'));
+            highlightSpans.forEach(span => {
+                const newSpan = document.createElement('span');
+                newSpan.innerHTML = span.innerHTML;
+                newSpan.setAttribute(
+                    'style',
+                    'background:#bae6fd !important;background-color:#bae6fd !important;color:#0369a1 !important;padding:2px 4px !important;border-radius:4px !important;font-weight:bold !important;'
+                );
+                span.parentNode.replaceChild(newSpan, span);
+            });
+
+            return root.innerHTML;
+        }
         const favoritesToggle = document.getElementById('favorites-toggle');
         const wecToggle = document.getElementById('wec-toggle');
         const tooltipToggle = document.getElementById('tooltip-toggle'); // may be null if not in DOM
@@ -1004,8 +1094,29 @@
         const studentMeta = document.getElementById('student-meta');
 const studentName = document.getElementById('student-name');
 const studentTask = document.getElementById('student-task');
+        const studentFocusBox = document.getElementById('student-focus-box');
         
         const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1DuwokbFs5Dl-v21gTSjxWJ6Z11eQpYgD6f5VxFp6oMKlfUdM_6-COxKkEdHhLbb-uQ/exec";
+
+        /** Prefer API `focus`; also accept sheet-style keys (e.g. Teacher Concerns column). */
+        function pickStudentFocusText(data) {
+            if (!data || typeof data !== "object") return "";
+            const keys = [
+                "focus",
+                "teacherConcerns",
+                "teacher_concerns",
+                "concerns",
+                "gradingFocus",
+                "studentFocus"
+            ];
+            for (let i = 0; i < keys.length; i++) {
+                const v = data[keys[i]];
+                if (v != null && String(v).trim() !== "") {
+                    return String(v).trim();
+                }
+            }
+            return "";
+        }
         
         async function fetchNextSubmission() {
     try {
@@ -1018,14 +1129,26 @@ editor.innerText = "";
 if (studentMeta) studentMeta.style.display = "none";
         
         const response = await fetch(APP_SCRIPT_URL, {
-    method: "POST",
-    // We remove the headers to keep it a "Simple Request"
-    body: JSON.stringify({
-        action: "fetchNext"
-    })
-});
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ action: "fetchNext" })
+        });
 
-        const data = await response.json();
+        const rawText = await response.text();
+        let data;
+        try {
+            data = JSON.parse(rawText);
+        } catch (parseErr) {
+            console.error("FETCH non-JSON response (status " + response.status + "):", rawText.slice(0, 400));
+            showToast(
+                "Fetch failed: server returned non-JSON (HTTP " + response.status + "). Check APP_SCRIPT_URL and deployment."
+            );
+            return;
+        }
+        if (data.ok === false && data.error) {
+            showToast(data.error);
+            return;
+        }
 
         if (!data.row) {
             showToast("No unprocessed submissions found");
@@ -1037,6 +1160,17 @@ editor.innerText = data.essay || "";
 
 if (studentName) studentName.textContent = "Name: " + (data.name || "");
 if (studentTask) studentTask.textContent = "Task: " + (data.task || "");
+if (studentFocusBox) {
+    const focusTrimmed = pickStudentFocusText(data);
+
+    if (focusTrimmed) {
+        studentFocusBox.innerHTML = focusTrimmed.replace(/\n/g, "<br>");
+        studentFocusBox.style.display = "block";
+    } else {
+        studentFocusBox.textContent = "";
+        studentFocusBox.style.display = "none";
+    }
+}
 if (studentMeta) studentMeta.style.display = "block";
 
 saveDraft();
@@ -1046,7 +1180,12 @@ if (overlay) overlay.style.display = 'none';
         
     } catch (err) {
         console.error("FETCH failed:", err);
-        showToast("Fetch failed");
+        showToast(err && err.message ? err.message : "Fetch failed");
+
+        if (studentFocusBox) {
+    studentFocusBox.textContent = "";
+    studentFocusBox.style.display = "none";
+}
         if (overlay) overlay.style.display = 'none';
     }
 }
@@ -1936,30 +2075,7 @@ if (overlay) overlay.style.display = 'none';
                 currentCounts[code] = (currentCounts[code] || 0) + 1;
             });
 
-            // Apply bulletproof inline styles to codes so they survive the copy/paste into Outlook/Gmail
-            const strongTags = Array.from(editorClone.querySelectorAll('strong'));
-            strongTags.forEach(tag => {
-                if (tag.textContent.trim() !== '[]') {
-                    const cleanText = tag.textContent.replace(/^\[/, '').replace(/\]$/, '').trim();
-                    const newSpan = document.createElement('span');
-                    newSpan.textContent = cleanText;
-                    // Brutally enforce inline styles that email clients respect
-                    newSpan.setAttribute('style', 'color: #0284c7; font-weight: bold; text-transform: uppercase;');
-                    tag.parentNode.replaceChild(newSpan, tag);
-                } else {
-                    tag.remove();
-                }
-            });
-
-            // Apply bulletproof inline styles to ad-hoc highlights
-            const highlightSpans = Array.from(editorClone.querySelectorAll('.custom-highlight'));
-            highlightSpans.forEach(span => {
-                const newSpan = document.createElement('span');
-                newSpan.innerHTML = span.innerHTML;
-                // Hard-code background styling for email clients (using both background and background-color)
-                newSpan.setAttribute('style', 'background: #bae6fd; background-color: #bae6fd; color: #0369a1; padding: 2px 4px; border-radius: 4px; font-weight: bold;');
-                span.parentNode.replaceChild(newSpan, span);
-            });
+            const emailSafeBodyHtml = buildEmailSafeFeedbackHTML(editorClone);
 
             const ordered = orderedCounts(currentCounts);
 
@@ -1999,7 +2115,7 @@ if (overlay) overlay.style.display = 'none';
             const finalHTML = `
                 <div style="font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 11pt; color: #334155; line-height: 1.6; max-width: 100%; width: 100%; background-color: #ffffff; padding: 2px;">
                     <div style="word-wrap: break-word; background-color: #ffffff;">
-                        ${editorClone.innerHTML}
+                        ${emailSafeBodyHtml}
                     </div>
                     <br><br>
                     ${summaryHTML}
@@ -2321,7 +2437,8 @@ if (overlay) overlay.style.display = 'none';
             });
         });
      document.getElementById("send-btn").addEventListener("click", async () => {
-    const feedback = editor.innerText;
+    const feedbackText = buildPlainTextFeedback();
+    const feedbackHtml = buildEmailSafeFeedbackHTML();
     const row = window.currentRow;
 
     if (!row) {
@@ -2329,12 +2446,17 @@ if (overlay) overlay.style.display = 'none';
         return;
     }
 
+    if (!feedbackText.trim() && !feedbackHtml.trim()) {
+        showToast("Nothing to send");
+        return;
+    }
+
     try {
-        await window.QuikDraftSend.send(row, feedback);
+        await window.QuikDraftSend.send(row, feedbackText, feedbackHtml);
         showToast("Sent to student");
     } catch (err) {
         console.error("SEND failed:", err);
-        showToast("Send failed");
+        showToast(err && err.message ? err.message : "Send failed");
     }
 });
    // ===== TEMP: SET CURRENT ROW MANUALLY =====
